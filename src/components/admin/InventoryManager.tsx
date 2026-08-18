@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { PackagePlus, Save, Trash2, Plus, X, Upload } from "lucide-react";
+import { useState, useMemo } from "react";
+import { PackagePlus, Save, Trash2, Plus, X, Upload, Search, Filter, Grid2X2, Grid3X3, Grid } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 
 // Re-usamos las server actions exportadas desde admin/actions.ts pasadas por props o importadas directamente
@@ -10,7 +10,27 @@ import { updateStock, deleteSize, addSize, addProduct, editProductImage } from "
 export default function InventoryManager({ products }: { products: any[] }) {
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [gridSize, setGridSize] = useState<"small" | "medium" | "large">("medium");
+
   const supabase = createClient();
+
+  // Filtrado y búsqueda
+  const filteredProducts = useMemo(() => {
+    return products.filter(p => {
+      const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = categoryFilter === "all" || p.category === categoryFilter;
+      return matchesSearch && matchesCategory;
+    });
+  }, [products, searchQuery, categoryFilter]);
+
+  // Clases dinámicas para el tamaño de la grilla
+  const gridColsClass = {
+    small: "grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6",
+    medium: "grid-cols-2 md:grid-cols-3 lg:grid-cols-4",
+    large: "grid-cols-1 md:grid-cols-2 lg:grid-cols-3",
+  }[gridSize];
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, existingProductId?: string) => {
     if (!e.target.files || e.target.files.length === 0) return;
@@ -89,24 +109,93 @@ export default function InventoryManager({ products }: { products: any[] }) {
         </div>
       </div>
       
-      {/* Columna Derecha: Grilla de Productos */}
-      <div className="lg:col-span-2 grid grid-cols-2 md:grid-cols-3 gap-4">
-        {products.map(product => (
-          <div 
-            key={product.id} 
-            onClick={() => setSelectedProduct(product)}
-            className="bg-[#0a0a0a] border border-[#333] hover:border-white transition-colors cursor-pointer group"
-          >
-            <div className="w-full aspect-square bg-[#111] relative overflow-hidden flex items-center justify-center">
-              <img src={product.image_url} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+      {/* Columna Derecha: Grilla de Productos y Controles */}
+      <div className="lg:col-span-2 flex flex-col gap-6">
+        
+        {/* Barra de Búsqueda y Filtros */}
+        <div className="bg-[#0a0a0a] border border-[#333] p-4 flex flex-col md:flex-row gap-4 items-center justify-between sticky top-24 z-10">
+          
+          <div className="flex w-full md:w-auto gap-2 flex-1">
+            <div className="relative w-full max-w-sm">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
+              <input 
+                type="text" 
+                placeholder="Buscar producto..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-[#111] border border-[#333] pl-10 pr-3 py-2 text-sm text-white focus:border-white focus:outline-none transition-colors"
+              />
             </div>
-            <div className="p-3">
-              <h3 className="font-montserrat font-bold text-white uppercase tracking-wider text-xs line-clamp-1">{product.name}</h3>
-              <p className="text-[#E60000] font-black text-sm">${product.price.toLocaleString('es-AR')}</p>
-              <p className="text-xs text-neutral-500 mt-1">{product.product_sizes?.length || 0} Talles configurados</p>
+            
+            <div className="relative">
+              <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
+              <select 
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                className="bg-[#111] border border-[#333] pl-10 pr-8 py-2 text-sm text-white focus:border-white focus:outline-none appearance-none cursor-pointer transition-colors"
+              >
+                <option value="all">Todas las Categorías</option>
+                <option value="buzos">Buzos</option>
+                <option value="pantalones">Pantalones</option>
+                <option value="calzado">Calzado</option>
+                <option value="accesorios">Accesorios</option>
+                <option value="perfumes">Perfumes</option>
+                <option value="gorras">Gorras</option>
+              </select>
             </div>
           </div>
-        ))}
+
+          <div className="flex gap-2">
+            <button 
+              onClick={() => setGridSize('large')} 
+              title="Vista Grande"
+              className={`p-2 border transition-colors ${gridSize === 'large' ? 'bg-white text-black border-white' : 'bg-[#111] text-neutral-500 border-[#333] hover:text-white'}`}
+            >
+              <Grid className="w-4 h-4" />
+            </button>
+            <button 
+              onClick={() => setGridSize('medium')} 
+              title="Vista Mediana"
+              className={`p-2 border transition-colors ${gridSize === 'medium' ? 'bg-white text-black border-white' : 'bg-[#111] text-neutral-500 border-[#333] hover:text-white'}`}
+            >
+              <Grid2X2 className="w-4 h-4" />
+            </button>
+            <button 
+              onClick={() => setGridSize('small')} 
+              title="Vista Pequeña"
+              className={`p-2 border transition-colors ${gridSize === 'small' ? 'bg-white text-black border-white' : 'bg-[#111] text-neutral-500 border-[#333] hover:text-white'}`}
+            >
+              <Grid3X3 className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Grilla */}
+        <div className={`grid gap-4 ${gridColsClass}`}>
+          {filteredProducts.map(product => (
+            <div 
+              key={product.id} 
+              onClick={() => setSelectedProduct(product)}
+              className="bg-[#0a0a0a] border border-[#333] hover:border-white transition-colors cursor-pointer group flex flex-col"
+            >
+              <div className="w-full aspect-square bg-[#111] relative overflow-hidden flex items-center justify-center">
+                <img src={product.image_url} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+              </div>
+              <div className="p-3 flex-1 flex flex-col justify-between">
+                <div>
+                  <h3 className="font-montserrat font-bold text-white uppercase tracking-wider text-xs line-clamp-2">{product.name}</h3>
+                  <p className="text-[#E60000] font-black text-sm mt-1">${product.price.toLocaleString('es-AR')}</p>
+                </div>
+                <p className="text-xs text-neutral-500 mt-2 font-semibold">{product.product_sizes?.length || 0} Talles</p>
+              </div>
+            </div>
+          ))}
+          {filteredProducts.length === 0 && (
+            <div className="col-span-full py-10 text-center text-neutral-500 font-bold uppercase tracking-widest border border-dashed border-[#333]">
+              No se encontraron productos.
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Modal de Detalle / Edición */}
