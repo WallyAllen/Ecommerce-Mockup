@@ -113,3 +113,19 @@ export async function addProduct(formData: FormData) {
   revalidatePath('/admin')
   revalidatePath('/catalogo')
 }
+
+export async function editProductImage(formData: FormData) {
+  const supabase = await createServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user || user.email !== 'fjborrazas3@gmail.com') throw new Error('Unauthorized')
+
+  const supabaseAdmin = createAdminClient(process.env.NEXT_PUBLIC_SUPABASE_URL || '', process.env.SUPABASE_SERVICE_ROLE_KEY || '')
+  
+  const productId = formData.get('productId') as string
+  const imageUrl = formData.get('imageUrl') as string
+
+  await supabaseAdmin.from('products').update({ image_url: imageUrl }).eq('id', productId)
+  
+  revalidatePath('/admin')
+  revalidatePath('/catalogo')
+}

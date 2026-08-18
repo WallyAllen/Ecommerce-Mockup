@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { Shield, Check, XCircle, PackagePlus, Save, Trash2, Plus } from "lucide-react";
 import { updateOrderStatus, addProduct, updateStock, deleteSize, addSize } from "./actions";
 import Link from "next/link";
+import InventoryManager from "@/components/admin/InventoryManager";
 
 export const dynamic = 'force-dynamic';
 
@@ -131,89 +132,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
           </table>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-1">
-            <div className="bg-[#0a0a0a] border border-[#333] p-6 sticky top-24">
-              <h2 className="font-montserrat font-black text-xl uppercase tracking-wider mb-6 flex items-center gap-2">
-                <PackagePlus className="w-5 h-5 text-[#E60000]" /> Nuevo Producto
-              </h2>
-              <form action={addProduct} className="flex flex-col gap-4">
-                <input type="text" name="name" placeholder="Nombre (Ej: Buzo Jordan)" required className="w-full bg-[#111] border border-[#333] p-3 text-white focus:border-white focus:outline-none" />
-                <input type="number" name="price" placeholder="Precio ($)" required className="w-full bg-[#111] border border-[#333] p-3 text-white focus:border-white focus:outline-none" />
-                <select name="category" required className="w-full bg-[#111] border border-[#333] p-3 text-white focus:border-white focus:outline-none">
-                  <option value="buzos">Buzos</option>
-                  <option value="pantalones">Pantalones</option>
-                  <option value="calzado">Calzado</option>
-                  <option value="accesorios">Accesorios</option>
-                  <option value="perfumes">Perfumes</option>
-                  <option value="gorras">Gorras</option>
-                </select>
-                <input type="text" name="image_url" placeholder="URL Imagen (/images/...)" required className="w-full bg-[#111] border border-[#333] p-3 text-white focus:border-white focus:outline-none" />
-                <input type="text" name="sizes" placeholder="Talles (Opcional, defecto: Único)" className="w-full bg-[#111] border border-[#333] p-3 text-white focus:border-white focus:outline-none" />
-                <button type="submit" className="w-full bg-[#E60000] text-white font-black py-4 uppercase tracking-widest border border-[#E60000] hover:bg-white hover:text-black hover:border-white transition-colors mt-2">
-                  Agregar a la tienda
-                </button>
-              </form>
-            </div>
-          </div>
-          
-          <div className="lg:col-span-2 space-y-4">
-            {products.map(product => (
-              <div key={product.id} className="bg-[#0a0a0a] border border-[#333] p-4 flex flex-col md:flex-row gap-4">
-                <div className="w-20 h-20 bg-[#111] border border-[#333] shrink-0 relative overflow-hidden flex items-center justify-center">
-                  <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-montserrat font-bold text-white uppercase tracking-wider text-sm">{product.name}</h3>
-                  <p className="text-[#E60000] font-black">${product.price.toLocaleString('es-AR')} <span className="text-xs text-neutral-500 font-semibold ml-2">[{product.category}]</span></p>
-                  
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {product.product_sizes?.map((ps: any) => (
-                      <div key={ps.size} className="flex items-center bg-[#111] border border-[#333]">
-                        <span className="font-bold text-xs uppercase px-3 py-1 border-r border-[#333]">{ps.size}</span>
-                        <form action={updateStock} className="flex items-center">
-                          <input type="hidden" name="productId" value={product.id} />
-                          <input type="hidden" name="size" value={ps.size} />
-                          <input 
-                            type="number" 
-                            name="stock" 
-                            defaultValue={ps.stock_quantity} 
-                            className="w-16 bg-transparent text-white text-center text-sm focus:outline-none"
-                            min="0"
-                          />
-                          <button type="submit" title="Guardar Stock" className="px-2 py-1 text-green-500 hover:bg-green-500 hover:text-white transition-colors border-l border-[#333]">
-                            <Save className="w-4 h-4" />
-                          </button>
-                        </form>
-                        <form action={deleteSize} className="flex items-center">
-                          <input type="hidden" name="productId" value={product.id} />
-                          <input type="hidden" name="size" value={ps.size} />
-                          <button type="submit" title="Eliminar Talle" className="px-2 py-1 text-red-500 hover:bg-red-500 hover:text-white transition-colors border-l border-[#333]">
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </form>
-                      </div>
-                    ))}
-                    
-                    <form action={addSize} className="flex items-center bg-transparent border border-dashed border-[#666]">
-                      <input type="hidden" name="productId" value={product.id} />
-                      <input 
-                        type="text" 
-                        name="newSize" 
-                        placeholder="Nuevo Talle" 
-                        required 
-                        className="w-24 bg-transparent text-white text-center text-xs font-bold uppercase focus:outline-none p-1"
-                      />
-                      <button type="submit" title="Agregar Talle" className="px-2 py-1 text-neutral-400 hover:text-white transition-colors border-l border-dashed border-[#666]">
-                        <Plus className="w-4 h-4" />
-                      </button>
-                    </form>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <InventoryManager products={products} />
       )}
     </div>
   );
