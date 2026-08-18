@@ -43,6 +43,43 @@ export async function updateStock(formData: FormData) {
 
   await supabaseAdmin.from('product_sizes').update({ stock_quantity: newStock }).eq('product_id', productId).eq('size', size)
   revalidatePath('/admin')
+  revalidatePath('/catalogo')
+}
+
+export async function deleteSize(formData: FormData) {
+  const supabase = await createServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user || user.email !== 'fjborrazas3@gmail.com') throw new Error('Unauthorized')
+
+  const supabaseAdmin = createAdminClient(process.env.NEXT_PUBLIC_SUPABASE_URL || '', process.env.SUPABASE_SERVICE_ROLE_KEY || '')
+  
+  const productId = formData.get('productId') as string
+  const size = formData.get('size') as string
+
+  await supabaseAdmin.from('product_sizes').delete().eq('product_id', productId).eq('size', size)
+  revalidatePath('/admin')
+  revalidatePath('/catalogo')
+}
+
+export async function addSize(formData: FormData) {
+  const supabase = await createServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user || user.email !== 'fjborrazas3@gmail.com') throw new Error('Unauthorized')
+
+  const supabaseAdmin = createAdminClient(process.env.NEXT_PUBLIC_SUPABASE_URL || '', process.env.SUPABASE_SERVICE_ROLE_KEY || '')
+  
+  const productId = formData.get('productId') as string
+  const newSize = (formData.get('newSize') as string).trim()
+
+  if (newSize) {
+    await supabaseAdmin.from('product_sizes').insert({
+      product_id: productId,
+      size: newSize,
+      stock_quantity: 0
+    })
+  }
+  revalidatePath('/admin')
+  revalidatePath('/catalogo')
 }
 
 export async function addProduct(formData: FormData) {
@@ -62,13 +99,13 @@ export async function addProduct(formData: FormData) {
     name, price, category, image_url, description: '', is_new: true
   }).select('id').single()
 
-  if (newProduct && sizesString) {
-    const sizes = sizesString.split(',').map(s => s.trim()).filter(s => s)
-    for (const size of sizes) {
+  if (newProduct) {
+    const finalSizes = sizesString ? sizesString.split(',').map(s => s.trim()).filter(s => s) : ['Único']
+    for (const size of finalSizes) {
       await supabaseAdmin.from('product_sizes').insert({
         product_id: newProduct.id,
         size: size,
-        stock_quantity: 0 // Inicia en 0, luego el admin lo sube
+        stock_quantity: 0 
       })
     }
   }
