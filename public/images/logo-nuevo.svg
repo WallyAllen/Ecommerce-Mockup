@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 400">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Anton&amp;display=swap');
+      .font-anton { font-family: 'Anton', sans-serif; text-anchor: middle; }
+    </style>
+  </defs>
+  
+  <!-- Fondo transparente -->
+  <rect width="500" height="400" fill="transparent" />
+
+  <!-- Monograma IB gigante -->
+  <!-- I Roja -->
+  <text x="190" y="280" font-size="320" fill="#E60000" class="font-anton">I</text>
+  <!-- B Blanca -->
+  <text x="310" y="280" font-size="320" fill="#FFFFFF" class="font-anton">B</text>
+
+  <!-- Texto IMPORTADOS -->
+  <!-- paint-order="stroke fill" le hace un borde negro grueso para que contraste sobre la B blanca -->
+  <text x="250" y="200" font-size="70" fill="#FFFFFF" class="font-anton" letter-spacing="6" paint-order="stroke fill" stroke="#000000" stroke-width="12">IMPORTADOS</text>
+  
+  <!-- Texto BERISSO -->
+  <text x="250" y="300" font-size="80" fill="#E60000" class="font-anton" letter-spacing="8" paint-order="stroke fill" stroke="#000000" stroke-width="12">BERISSO</text>
+</svg>
