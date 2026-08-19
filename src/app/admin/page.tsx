@@ -1,10 +1,10 @@
 import { createClient as createServerClient } from "@/utils/supabase/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { redirect } from "next/navigation";
-import { Shield, Check, XCircle, PackagePlus, Save, Trash2, Plus } from "lucide-react";
-import { updateOrderStatus, addProduct, updateStock, deleteSize, addSize } from "./actions";
+import { Shield } from "lucide-react";
 import Link from "next/link";
 import InventoryManager from "@/components/admin/InventoryManager";
+import OrdersManager from "@/components/admin/OrdersManager";
 
 export const dynamic = 'force-dynamic';
 
@@ -62,78 +62,11 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
       </div>
 
       {tab === 'orders' ? (
-        <div className="bg-[#0a0a0a] border border-[#333] overflow-x-auto">
-          <table className="w-full text-left border-collapse min-w-[800px]">
-            <thead>
-              <tr className="bg-[#111] border-b border-[#333]">
-                <th className="p-4 font-montserrat font-black uppercase text-xs tracking-widest text-neutral-400">ID / Fecha</th>
-                <th className="p-4 font-montserrat font-black uppercase text-xs tracking-widest text-neutral-400">Cliente</th>
-                <th className="p-4 font-montserrat font-black uppercase text-xs tracking-widest text-neutral-400">Total / Método</th>
-                <th className="p-4 font-montserrat font-black uppercase text-xs tracking-widest text-neutral-400">Estado</th>
-                <th className="p-4 font-montserrat font-black uppercase text-xs tracking-widest text-neutral-400 text-right">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders && orders.length > 0 ? (
-                orders.map((order) => (
-                  <tr key={order.id} className="border-b border-[#333] hover:bg-[#111] transition-colors">
-                    <td className="p-4">
-                      <p className="font-bold text-sm text-white uppercase">{order.id.split('-')[0]}</p>
-                      <p className="text-xs text-neutral-500 font-semibold">{new Date(order.created_at).toLocaleString('es-AR')}</p>
-                    </td>
-                    <td className="p-4">
-                      <p className="font-bold text-sm text-white">{order.customer_name}</p>
-                      <p className="text-xs text-neutral-500 font-semibold">{order.customer_phone}</p>
-                      <p className="text-xs text-neutral-500 font-semibold">{order.customer_email}</p>
-                    </td>
-                    <td className="p-4">
-                      <p className="font-black text-base text-[#E60000]">${order.total.toLocaleString('es-AR')}</p>
-                      <p className="text-xs font-bold text-neutral-400 uppercase tracking-widest">{order.payment_method} - {order.delivery_method}</p>
-                    </td>
-                    <td className="p-4">
-                      <span className={`text-xs font-black uppercase tracking-widest px-3 py-1 border ${
-                        order.status === 'paid' ? 'border-green-500 text-green-500 bg-green-500/10' : 
-                        order.status === 'pending' ? 'border-yellow-500 text-yellow-500 bg-yellow-500/10' : 
-                        'border-red-500 text-red-500 bg-red-500/10'
-                      }`}>
-                        {order.status === 'paid' ? 'Pagado' : order.status === 'pending' ? 'Pendiente' : 'Cancelado'}
-                      </span>
-                    </td>
-                    <td className="p-4 text-right">
-                      {order.status === 'pending' && (
-                        <div className="flex justify-end gap-2">
-                          <form action={updateOrderStatus}>
-                            <input type="hidden" name="orderId" value={order.id} />
-                            <input type="hidden" name="status" value="paid" />
-                            <button type="submit" title="Confirmar Pago" className="p-2 border border-green-500 text-green-500 hover:bg-green-500 hover:text-white transition-colors">
-                              <Check className="w-4 h-4" />
-                            </button>
-                          </form>
-                          <form action={updateOrderStatus}>
-                            <input type="hidden" name="orderId" value={order.id} />
-                            <input type="hidden" name="status" value="cancelled" />
-                            <button type="submit" title="Cancelar Orden y Devolver Stock" className="p-2 border border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition-colors">
-                              <XCircle className="w-4 h-4" />
-                            </button>
-                          </form>
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={5} className="p-8 text-center text-neutral-500 font-bold uppercase tracking-widest">
-                    No hay órdenes registradas.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        <OrdersManager initialOrders={orders} />
       ) : (
         <InventoryManager products={products} />
       )}
     </div>
   );
 }
+
