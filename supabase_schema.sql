@@ -33,6 +33,8 @@ CREATE TABLE orders (
   total NUMERIC(10, 2) NOT NULL,
   mercadopago_id VARCHAR(100),
   mercadopago_preference_id VARCHAR(100),
+  webhook_abandonment_sent BOOLEAN DEFAULT false,
+  webhook_transfer_sent BOOLEAN DEFAULT false,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 

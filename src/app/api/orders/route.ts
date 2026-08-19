@@ -86,6 +86,24 @@ export async function POST(req: Request) {
 
       return NextResponse.json({ url: prefData.init_point });
     } else {
+      // EVENTO: Reserva/Transferencia Pendiente (Hito 1.4)
+      // Disparamos el webhook a n8n de forma asíncrona para que la IA lo contacte por WhatsApp.
+      if (process.env.N8N_WEBHOOK_URL) {
+        fetch(process.env.N8N_WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            event: 'transfer_pending',
+            order_id: order.id,
+            customer_name: customerInfo?.name || 'Cliente',
+            customer_email: customerInfo?.email || '',
+            customer_phone: customerInfo?.phone || '',
+            total: total,
+            items: cart.map((i: any) => `${i.quantity}x ${i.name} (Talle: ${i.size})`).join(', ')
+          })
+        }).catch(err => console.error("Error disparando webhook a n8n:", err));
+      }
+
       return NextResponse.json({ url: `/checkout/success?order=${order.id}&method=efectivo` });
     }
 
