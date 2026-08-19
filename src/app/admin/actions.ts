@@ -129,3 +129,25 @@ export async function editProductImage(formData: FormData) {
   revalidatePath('/admin')
   revalidatePath('/catalogo')
 }
+
+export async function deleteProducts(formData: FormData) {
+  const supabase = await createServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user || user.email !== 'fjborrazas3@gmail.com') throw new Error('Unauthorized')
+
+  const supabaseAdmin = createAdminClient(process.env.NEXT_PUBLIC_SUPABASE_URL || '', process.env.SUPABASE_SERVICE_ROLE_KEY || '')
+  
+  const idsString = formData.get('productIds') as string
+  if (!idsString) return
+
+  const ids = idsString.split(',')
+  
+  // Primero borramos los talles para evitar errores de Foreign Key (si no hay CASCADE)
+  await supabaseAdmin.from('product_sizes').delete().in('product_id', ids)
+  
+  // Luego borramos el producto
+  await supabaseAdmin.from('products').delete().in('id', ids)
+  
+  revalidatePath('/admin')
+  revalidatePath('/catalogo')
+}

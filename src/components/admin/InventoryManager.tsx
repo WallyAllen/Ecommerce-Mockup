@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { PackagePlus, Save, Trash2, Plus, X, Upload, Search, Filter, Grid2X2, Grid3X3, Grid } from "lucide-react";
+import { useState, useMemo, useRef } from "react";
+import { PackagePlus, Save, Trash2, Plus, X, Upload, Search, Filter, Grid2X2, Grid3X3, Grid, CheckSquare, Square } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
+import { useRouter } from "next/navigation";
 
-// Re-usamos las server actions exportadas desde admin/actions.ts pasadas por props o importadas directamente
-import { updateStock, deleteSize, addSize, addProduct, editProductImage } from "@/app/admin/actions";
+// Re-usamos las server actions exportadas desde admin/actions.ts
+import { updateStock, deleteSize, addSize, addProduct, editProductImage, deleteProducts } from "@/app/admin/actions";
 
 export default function InventoryManager({ products }: { products: any[] }) {
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
@@ -13,8 +14,14 @@ export default function InventoryManager({ products }: { products: any[] }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [gridSize, setGridSize] = useState<"small" | "medium" | "large">("medium");
+  
+  // Modo Selección Múltiple
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
 
   const supabase = createClient();
+  const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
 
   // Filtrado y búsqueda
   const filteredProducts = useMemo(() => {
@@ -51,17 +58,14 @@ export default function InventoryManager({ products }: { products: any[] }) {
       const { data } = supabase.storage.from('products').getPublicUrl(filePath);
       
       if (existingProductId) {
-        // Editando un producto existente
         const formData = new FormData();
         formData.append('productId', existingProductId);
         formData.append('imageUrl', data.publicUrl);
         await editProductImage(formData);
         
-        // Actualizamos el estado visual temporalmente
         setSelectedProduct({ ...selectedProduct, image_url: data.publicUrl });
-        alert("¡Imagen actualizada con éxito!");
+        router.refresh();
       } else {
-        // Estamos en el form de crear producto
         const inputUrl = document.getElementById('new-product-image-url') as HTMLInputElement;
         if (inputUrl) inputUrl.value = data.publicUrl;
       }
@@ -72,15 +76,48 @@ export default function InventoryManager({ products }: { products: any[] }) {
     }
   };
 
+  const handleProductClick = (product: any) => {
+    if (isSelectionMode) {
+      if (selectedProductIds.includes(product.id)) {
+        setSelectedProductIds(selectedProductIds.filter(id => id !== product.id));
+      } else {
+        setSelectedProductIds([...selectedProductIds, product.id]);
+      }
+    } else {
+      setSelectedProduct(product);
+    }
+  };
+
+  const handleAddProduct = async (formData: FormData) => {
+    await addProduct(formData);
+    formRef.current?.reset();
+    const inputUrl = document.getElementById('new-product-image-url') as HTMLInputElement;
+    if (inputUrl) inputUrl.value = "";
+    router.refresh();
+  };
+
+  const handleDeleteSelected = async () => {
+    if (selectedProductIds.length === 0) return;
+    if (!confirm(`¿Estás seguro de que quieres eliminar ${selectedProductIds.length} productos? Esto no se puede deshacer.`)) return;
+
+    const formData = new FormData();
+    formData.append('productIds', selectedProductIds.join(','));
+    await deleteProducts(formData);
+    
+    setSelectedProductIds([]);
+    setIsSelectionMode(false);
+    router.refresh();
+  };
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 relative">
       {/* Columna Izquierda: Formulario Rápido (Nuevo Producto) */}
       <div className="lg:col-span-1">
         <div className="bg-[#0a0a0a] border border-[#333] p-6 sticky top-24">
           <h2 className="font-montserrat font-black text-xl uppercase tracking-wider mb-6 flex items-center gap-2">
             <PackagePlus className="w-5 h-5 text-[#E60000]" /> Nuevo Producto
           </h2>
-          <form action={addProduct} className="flex flex-col gap-4">
+          <form ref={formRef} action={handleAddProduct} className="flex flex-col gap-4">
             <input type="text" name="name" placeholder="Nombre (Ej: Buzo Jordan)" required className="w-full bg-[#111] border border-[#333] p-3 text-white focus:border-white focus:outline-none" />
             <input type="number" name="price" placeholder="Precio ($)" required className="w-full bg-[#111] border border-[#333] p-3 text-white focus:border-white focus:outline-none" />
             <select name="category" required className="w-full bg-[#111] border border-[#333] p-3 text-white focus:border-white focus:outline-none">
@@ -92,7 +129,6 @@ export default function InventoryManager({ products }: { products: any[] }) {
               <option value="gorras">Gorras</option>
             </select>
             
-            {/* Input URL oculto o readonly, llenado por la subida */}
             <input type="text" id="new-product-image-url" name="image_url" placeholder="URL de la imagen" required className="w-full bg-[#111] border border-[#333] p-3 text-white focus:border-white focus:outline-none text-xs text-neutral-500" readOnly />
             
             <div className="relative overflow-hidden w-full bg-[#111] border border-[#333] hover:border-white transition-colors cursor-pointer p-3 flex justify-center items-center gap-2">
@@ -147,49 +183,74 @@ export default function InventoryManager({ products }: { products: any[] }) {
 
           <div className="flex gap-2">
             <button 
-              onClick={() => setGridSize('large')} 
-              title="Vista Grande"
-              className={`p-2 border transition-colors ${gridSize === 'large' ? 'bg-white text-black border-white' : 'bg-[#111] text-neutral-500 border-[#333] hover:text-white'}`}
+              onClick={() => {
+                setIsSelectionMode(!isSelectionMode);
+                if (isSelectionMode) setSelectedProductIds([]);
+              }} 
+              title="Modo Selección Múltiple"
+              className={`p-2 border transition-colors flex items-center gap-2 ${isSelectionMode ? 'bg-[#E60000] text-white border-[#E60000]' : 'bg-[#111] text-neutral-500 border-[#333] hover:text-white'}`}
             >
+              <CheckSquare className="w-4 h-4" />
+              <span className="hidden md:inline font-bold text-xs uppercase tracking-widest">Selec.</span>
+            </button>
+            <div className="w-px h-8 bg-[#333] mx-1"></div>
+            <button onClick={() => setGridSize('large')} title="Vista Grande" className={`p-2 border transition-colors ${gridSize === 'large' ? 'bg-white text-black border-white' : 'bg-[#111] text-neutral-500 border-[#333] hover:text-white'}`}>
               <Grid className="w-4 h-4" />
             </button>
-            <button 
-              onClick={() => setGridSize('medium')} 
-              title="Vista Mediana"
-              className={`p-2 border transition-colors ${gridSize === 'medium' ? 'bg-white text-black border-white' : 'bg-[#111] text-neutral-500 border-[#333] hover:text-white'}`}
-            >
+            <button onClick={() => setGridSize('medium')} title="Vista Mediana" className={`p-2 border transition-colors ${gridSize === 'medium' ? 'bg-white text-black border-white' : 'bg-[#111] text-neutral-500 border-[#333] hover:text-white'}`}>
               <Grid2X2 className="w-4 h-4" />
             </button>
-            <button 
-              onClick={() => setGridSize('small')} 
-              title="Vista Pequeña"
-              className={`p-2 border transition-colors ${gridSize === 'small' ? 'bg-white text-black border-white' : 'bg-[#111] text-neutral-500 border-[#333] hover:text-white'}`}
-            >
+            <button onClick={() => setGridSize('small')} title="Vista Pequeña" className={`p-2 border transition-colors ${gridSize === 'small' ? 'bg-white text-black border-white' : 'bg-[#111] text-neutral-500 border-[#333] hover:text-white'}`}>
               <Grid3X3 className="w-4 h-4" />
             </button>
           </div>
         </div>
 
+        {/* Floating Action Bar (Eliminar Múltiple) */}
+        {isSelectionMode && selectedProductIds.length > 0 && (
+          <div className="bg-[#E60000] text-white p-4 sticky top-44 z-20 flex justify-between items-center shadow-xl border border-red-500 animate-in fade-in slide-in-from-top-4">
+            <span className="font-montserrat font-black uppercase tracking-wider">{selectedProductIds.length} Productos Seleccionados</span>
+            <button 
+              onClick={handleDeleteSelected}
+              className="bg-black text-white hover:bg-white hover:text-black transition-colors px-4 py-2 font-bold text-xs uppercase tracking-widest flex items-center gap-2"
+            >
+              <Trash2 className="w-4 h-4" /> Eliminar Permanentemente
+            </button>
+          </div>
+        )}
+
         {/* Grilla */}
         <div className={`grid gap-4 ${gridColsClass}`}>
-          {filteredProducts.map(product => (
-            <div 
-              key={product.id} 
-              onClick={() => setSelectedProduct(product)}
-              className="bg-[#0a0a0a] border border-[#333] hover:border-white transition-colors cursor-pointer group flex flex-col"
-            >
-              <div className="w-full aspect-square bg-[#111] relative overflow-hidden flex items-center justify-center">
-                <img src={product.image_url} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-              </div>
-              <div className="p-3 flex-1 flex flex-col justify-between">
-                <div>
-                  <h3 className="font-montserrat font-bold text-white uppercase tracking-wider text-xs line-clamp-2">{product.name}</h3>
-                  <p className="text-[#E60000] font-black text-sm mt-1">${product.price.toLocaleString('es-AR')}</p>
+          {filteredProducts.map(product => {
+            const isSelected = selectedProductIds.includes(product.id);
+            return (
+              <div 
+                key={product.id} 
+                onClick={() => handleProductClick(product)}
+                className={`bg-[#0a0a0a] border transition-all cursor-pointer group flex flex-col relative
+                  ${isSelected ? 'border-[#E60000] ring-1 ring-[#E60000]' : 'border-[#333] hover:border-white'}
+                `}
+              >
+                {/* Indicador de Selección */}
+                {isSelectionMode && (
+                  <div className="absolute top-2 right-2 z-10 bg-black/50 rounded-full p-1">
+                    {isSelected ? <CheckSquare className="w-5 h-5 text-[#E60000]" /> : <Square className="w-5 h-5 text-white/50" />}
+                  </div>
+                )}
+
+                <div className="w-full aspect-square bg-[#111] relative overflow-hidden flex items-center justify-center">
+                  <img src={product.image_url} alt={product.name} className={`w-full h-full object-cover transition-transform ${isSelectionMode ? '' : 'group-hover:scale-105'}`} />
                 </div>
-                <p className="text-xs text-neutral-500 mt-2 font-semibold">{product.product_sizes?.length || 0} Talles</p>
+                <div className="p-3 flex-1 flex flex-col justify-between">
+                  <div>
+                    <h3 className="font-montserrat font-bold text-white uppercase tracking-wider text-xs line-clamp-2">{product.name}</h3>
+                    <p className="text-[#E60000] font-black text-sm mt-1">${product.price.toLocaleString('es-AR')}</p>
+                  </div>
+                  <p className="text-xs text-neutral-500 mt-2 font-semibold">{product.product_sizes?.length || 0} Talles</p>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
           {filteredProducts.length === 0 && (
             <div className="col-span-full py-10 text-center text-neutral-500 font-bold uppercase tracking-widest border border-dashed border-[#333]">
               No se encontraron productos.
@@ -199,7 +260,7 @@ export default function InventoryManager({ products }: { products: any[] }) {
       </div>
 
       {/* Modal de Detalle / Edición */}
-      {selectedProduct && (
+      {selectedProduct && !isSelectionMode && (
         <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm">
           <div className="bg-[#0a0a0a] border border-[#333] w-full max-w-2xl max-h-[90vh] overflow-y-auto flex flex-col relative shadow-2xl">
             
@@ -235,9 +296,24 @@ export default function InventoryManager({ products }: { products: any[] }) {
               <div className="w-full md:w-2/3 flex flex-col gap-6">
                 
                 {/* Info Básica */}
-                <div>
-                  <h3 className="font-montserrat font-black text-xl uppercase text-white mb-1">{selectedProduct.name}</h3>
-                  <p className="text-lg font-bold text-[#E60000]">${selectedProduct.price.toLocaleString('es-AR')} <span className="text-sm text-neutral-500 ml-2">[{selectedProduct.category}]</span></p>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="font-montserrat font-black text-xl uppercase text-white mb-1">{selectedProduct.name}</h3>
+                    <p className="text-lg font-bold text-[#E60000]">${selectedProduct.price.toLocaleString('es-AR')} <span className="text-sm text-neutral-500 ml-2">[{selectedProduct.category}]</span></p>
+                  </div>
+                  {/* Eliminar Producto Individual */}
+                  <form action={async (formData) => {
+                    if (confirm('¿Eliminar este producto permanentemente?')) {
+                      await deleteProducts(formData);
+                      setSelectedProduct(null);
+                      router.refresh();
+                    }
+                  }}>
+                    <input type="hidden" name="productIds" value={selectedProduct.id} />
+                    <button type="submit" title="Eliminar Producto" className="p-2 border border-[#333] text-neutral-500 hover:border-red-500 hover:text-red-500 hover:bg-red-500/10 transition-colors">
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  </form>
                 </div>
 
                 {/* Gestor de Talles */}
@@ -249,7 +325,7 @@ export default function InventoryManager({ products }: { products: any[] }) {
                         <span className="font-bold text-sm uppercase px-4 py-2 border-r border-[#333] w-20 text-center">{ps.size}</span>
                         
                         <div className="flex flex-1">
-                          <form action={updateStock} className="flex flex-1 items-center">
+                          <form action={async (formData) => { await updateStock(formData); router.refresh(); }} className="flex flex-1 items-center">
                             <input type="hidden" name="productId" value={selectedProduct.id} />
                             <input type="hidden" name="size" value={ps.size} />
                             <input 
@@ -264,7 +340,7 @@ export default function InventoryManager({ products }: { products: any[] }) {
                             </button>
                           </form>
                           
-                          <form action={deleteSize} className="flex items-center">
+                          <form action={async (formData) => { await deleteSize(formData); router.refresh(); }} className="flex items-center">
                             <input type="hidden" name="productId" value={selectedProduct.id} />
                             <input type="hidden" name="size" value={ps.size} />
                             <button type="submit" title="Eliminar Talle" className="px-4 py-2 text-red-500 hover:bg-red-500 hover:text-white transition-colors border-l border-[#333]">
@@ -277,7 +353,7 @@ export default function InventoryManager({ products }: { products: any[] }) {
                   </div>
 
                   {/* Agregar Nuevo Talle */}
-                  <form action={addSize} className="flex items-center bg-transparent border border-dashed border-[#666] mt-4">
+                  <form action={async (formData) => { await addSize(formData); router.refresh(); }} className="flex items-center bg-transparent border border-dashed border-[#666] mt-4">
                     <input type="hidden" name="productId" value={selectedProduct.id} />
                     <input 
                       type="text" 
