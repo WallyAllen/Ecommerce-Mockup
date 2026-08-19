@@ -376,34 +376,7 @@ export default function InventoryManager({ products }: { products: any[] }) {
                   <h4 className="font-bold text-xs uppercase tracking-widest text-neutral-400 mb-3 border-b border-[#333] pb-2">Control de Stock por Talle</h4>
                   <div className="flex flex-col gap-2">
                     {selectedProduct.product_sizes?.map((ps: any) => (
-                      <div key={ps.size} className="flex items-center bg-[#111] border border-[#333] justify-between">
-                        <span className="font-bold text-sm uppercase px-4 py-2 border-r border-[#333] w-20 text-center">{ps.size}</span>
-                        
-                        <div className="flex flex-1">
-                          <form action={async (formData) => { await updateStock(formData); router.refresh(); }} className="flex flex-1 items-center">
-                            <input type="hidden" name="productId" value={selectedProduct.id} />
-                            <input type="hidden" name="size" value={ps.size} />
-                            <input 
-                              type="number" 
-                              name="stock" 
-                              defaultValue={ps.stock_quantity} 
-                              className="w-full bg-transparent text-white text-center text-sm focus:outline-none px-2"
-                              min="0"
-                            />
-                            <button type="submit" title="Guardar Stock" className="px-4 py-2 text-green-500 hover:bg-green-500 hover:text-white transition-colors border-l border-[#333]">
-                              <Save className="w-4 h-4" />
-                            </button>
-                          </form>
-                          
-                          <form action={async (formData) => { await deleteSize(formData); router.refresh(); }} className="flex items-center">
-                            <input type="hidden" name="productId" value={selectedProduct.id} />
-                            <input type="hidden" name="size" value={ps.size} />
-                            <button type="submit" title="Eliminar Talle" className="px-4 py-2 text-red-500 hover:bg-red-500 hover:text-white transition-colors border-l border-[#333]">
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </form>
-                        </div>
-                      </div>
+                      <StockRow key={ps.size} ps={ps} selectedProduct={selectedProduct} router={router} />
                     ))}
                   </div>
 
@@ -428,6 +401,48 @@ export default function InventoryManager({ products }: { products: any[] }) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function StockRow({ ps, selectedProduct, router }: { ps: any, selectedProduct: any, router: any }) {
+  const [stock, setStock] = useState(ps.stock_quantity);
+
+  return (
+    <div className="flex items-center bg-[#111] border border-[#333] justify-between">
+      <span className="font-bold text-sm uppercase px-4 py-2 border-r border-[#333] w-20 text-center">{ps.size}</span>
+      
+      <div className="flex flex-1">
+        <form action={async (formData) => { await updateStock(formData); router.refresh(); }} className="flex flex-1 items-center justify-center">
+          <input type="hidden" name="productId" value={selectedProduct.id} />
+          <input type="hidden" name="size" value={ps.size} />
+          
+          <div className="flex items-center gap-1 mx-2">
+            <button type="button" onClick={() => setStock(Math.max(0, stock - 1))} className="w-8 h-8 bg-[#333] hover:bg-white hover:text-black font-black text-lg transition-colors flex items-center justify-center rounded-sm">-</button>
+            <input 
+              type="number" 
+              name="stock" 
+              value={stock} 
+              onChange={(e) => setStock(parseInt(e.target.value) || 0)}
+              className="w-12 bg-transparent text-white text-center text-sm font-bold focus:outline-none [-moz-appearance:_textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
+              min="0"
+            />
+            <button type="button" onClick={() => setStock(stock + 1)} className="w-8 h-8 bg-[#333] hover:bg-white hover:text-black font-black text-lg transition-colors flex items-center justify-center rounded-sm">+</button>
+          </div>
+
+          <button type="submit" title="Guardar Stock" className="px-4 py-3 text-green-500 hover:bg-green-500 hover:text-white transition-colors border-l border-[#333] ml-auto">
+            <Save className="w-5 h-5" />
+          </button>
+        </form>
+        
+        <form action={async (formData) => { await deleteSize(formData); router.refresh(); }} className="flex items-center">
+          <input type="hidden" name="productId" value={selectedProduct.id} />
+          <input type="hidden" name="size" value={ps.size} />
+          <button type="submit" title="Eliminar Talle" className="px-4 py-3 text-red-500 hover:bg-red-500 hover:text-white transition-colors border-l border-[#333]">
+            <Trash2 className="w-5 h-5" />
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

@@ -3,6 +3,9 @@ import Image from "next/image";
 import { Truck, MapPin, ArrowRight } from "lucide-react";
 import { getNewArrivals } from "@/lib/data";
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function Home() {
   const categories = [
     { name: "Buzos", image: "/images/buzo-new.png" },

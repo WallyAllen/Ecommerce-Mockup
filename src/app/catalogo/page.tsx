@@ -7,6 +7,8 @@ import { useSearchParams } from "next/navigation";
 import { Filter, ChevronDown, X } from "lucide-react";
 import { getProductsByCategory, products as allProducts } from "@/lib/data";
 
+export const dynamic = 'force-dynamic';
+
 type Size = { name: string; inStock: boolean };
 
 function CatalogoContent() {
