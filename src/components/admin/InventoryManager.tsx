@@ -6,7 +6,7 @@ import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 
 // Re-usamos las server actions exportadas desde admin/actions.ts
-import { updateStock, deleteSize, addSize, addProduct, editProductImage, deleteProducts, editProductDetails } from "@/app/admin/actions";
+import { updateFullProduct, updateStock, deleteSize, addSize, addProduct, editProductImage, deleteProducts, editProductDetails } from "@/app/admin/actions";
 
 export default function InventoryManager({ products }: { products: any[] }) {
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
@@ -261,186 +261,233 @@ export default function InventoryManager({ products }: { products: any[] }) {
 
       {/* Modal de Detalle / Edición */}
       {selectedProduct && !isSelectionMode && (
-        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className="bg-[#0a0a0a] border border-[#333] w-full max-w-2xl max-h-[90vh] overflow-y-auto flex flex-col relative shadow-2xl">
-            
-            {/* Header del Modal */}
-            <div className="flex justify-between items-center p-4 border-b border-[#333] sticky top-0 bg-[#0a0a0a] z-10">
-              <h2 className="font-montserrat font-black text-lg uppercase tracking-wider text-white">Editar Producto</h2>
-              <button onClick={() => setSelectedProduct(null)} className="text-neutral-500 hover:text-[#E60000] transition-colors p-1">
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-
-            <div className="p-6 flex flex-col md:flex-row gap-6">
-              {/* Lado Izquierdo: Imagen */}
-              <div className="w-full md:w-1/3 flex flex-col gap-3">
-                <div className="aspect-square bg-[#111] border border-[#333] relative overflow-hidden group">
-                  <img src={selectedProduct.image_url} className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer">
-                    <input 
-                      type="file" 
-                      accept="image/*" 
-                      onChange={(e) => handleImageUpload(e, selectedProduct.id)} 
-                      className="absolute inset-0 opacity-0 cursor-pointer" 
-                    />
-                    <Upload className="w-8 h-8 text-white mb-2" />
-                    <span className="text-white font-bold text-xs uppercase tracking-widest text-center px-4">
-                      {isUploading ? 'Subiendo...' : 'Cambiar Imagen'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Lado Derecho: Datos y Stock */}
-              <div className="w-full md:w-2/3 flex flex-col gap-6">
-                
-                {/* Info Básica (Editable) */}
-                <form 
-                  action={async (formData) => { 
-                    await editProductDetails(formData); 
-                    setSelectedProduct({
-                      ...selectedProduct,
-                      name: formData.get('name'),
-                      price: parseFloat(formData.get('price') as string),
-                      category: formData.get('category')
-                    });
-                    router.refresh(); 
-                  }} 
-                  className="flex flex-col gap-3"
-                >
-                  <input type="hidden" name="productId" value={selectedProduct.id} />
-                  <div className="flex justify-between items-start gap-4">
-                    <div className="flex-1">
-                      <input 
-                        type="text" 
-                        name="name" 
-                        defaultValue={selectedProduct.name} 
-                        className="w-full font-montserrat font-black text-xl uppercase text-white bg-transparent border-b border-transparent hover:border-[#333] focus:border-white focus:outline-none transition-colors mb-1" 
-                        required 
-                        title="Modificar Nombre"
-                      />
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg font-bold text-[#E60000]">$</span>
-                        <input 
-                          type="number" 
-                          name="price" 
-                          defaultValue={selectedProduct.price} 
-                          className="w-24 text-lg font-bold text-[#E60000] bg-transparent border-b border-transparent hover:border-[#333] focus:border-white focus:outline-none transition-colors" 
-                          required 
-                          title="Modificar Precio"
-                        />
-                        <select 
-                          name="category" 
-                          defaultValue={selectedProduct.category} 
-                          className="text-sm text-neutral-500 bg-transparent border-b border-transparent hover:border-[#333] focus:border-white focus:outline-none transition-colors ml-2 cursor-pointer"
-                          required
-                          title="Modificar Categoría"
-                        >
-                          <option value="buzos">Buzos</option>
-                          <option value="pantalones">Pantalones</option>
-                          <option value="calzado">Calzado</option>
-                          <option value="accesorios">Accesorios</option>
-                          <option value="perfumes">Perfumes</option>
-                          <option value="gorras">Gorras</option>
-                        </select>
-                      </div>
-                    </div>
-                    
-                    <div className="flex flex-col gap-2 shrink-0">
-                      <button type="submit" title="Guardar Cambios de Info Básica" className="p-2 border border-green-500 text-green-500 hover:bg-green-500 hover:text-white transition-colors">
-                        <Save className="w-5 h-5" />
-                      </button>
-                      <button 
-                        type="button"
-                        onClick={async () => {
-                          if (confirm('¿Eliminar este producto permanentemente?')) {
-                            const formData = new FormData();
-                            formData.append('productIds', selectedProduct.id);
-                            await deleteProducts(formData);
-                            setSelectedProduct(null);
-                            router.refresh();
-                          }
-                        }}
-                        title="Eliminar Producto" 
-                        className="p-2 border border-[#333] text-neutral-500 hover:border-red-500 hover:text-red-500 hover:bg-red-500/10 transition-colors"
-                      >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </div>
-                </form>
-
-                {/* Gestor de Talles */}
-                <div>
-                  <h4 className="font-bold text-xs uppercase tracking-widest text-neutral-400 mb-3 border-b border-[#333] pb-2">Control de Stock por Talle</h4>
-                  <div className="flex flex-col gap-2">
-                    {selectedProduct.product_sizes?.map((ps: any) => (
-                      <StockRow key={ps.size} ps={ps} selectedProduct={selectedProduct} router={router} />
-                    ))}
-                  </div>
-
-                  {/* Agregar Nuevo Talle */}
-                  <form action={async (formData) => { await addSize(formData); router.refresh(); }} className="flex items-center bg-transparent border border-dashed border-[#666] mt-4">
-                    <input type="hidden" name="productId" value={selectedProduct.id} />
-                    <input 
-                      type="text" 
-                      name="newSize" 
-                      placeholder="NUEVO TALLE" 
-                      required 
-                      className="w-full bg-transparent text-white text-center text-sm font-bold uppercase focus:outline-none p-2"
-                    />
-                    <button type="submit" title="Agregar Talle" className="px-4 py-2 bg-[#111] text-white hover:bg-white hover:text-black font-bold uppercase text-xs tracking-widest transition-colors border-l border-dashed border-[#666]">
-                      Crear
-                    </button>
-                  </form>
-                </div>
-
-              </div>
-            </div>
-          </div>
-        </div>
+        <EditProductModal 
+          product={selectedProduct} 
+          onClose={() => setSelectedProduct(null)} 
+          router={router} 
+        />
       )}
     </div>
   );
 }
 
-function StockRow({ ps, selectedProduct, router }: { ps: any, selectedProduct: any, router: any }) {
-  const [stock, setStock] = useState(ps.stock_quantity);
+function EditProductModal({ product, onClose, router }: { product: any, onClose: () => void, router: any }) {
+  const [name, setName] = useState(product.name);
+  const [price, setPrice] = useState(product.price);
+  const [category, setCategory] = useState(product.category);
+  
+  // Local state for sizes: we want to track the current sizes and any edits
+  const initialSizes = (product.product_sizes || []).map((ps: any) => ({
+    size: ps.size,
+    stock_quantity: ps.stock_quantity,
+    action: 'keep' // 'keep', 'update', 'delete'
+  }));
+  const [sizes, setSizes] = useState<any[]>(initialSizes);
+  const [newSizeInput, setNewSizeInput] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+
+  // Sorting logic
+  const sizeOrder = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL'];
+  const sortedSizes = [...sizes].filter(s => s.action !== 'delete').sort((a, b) => {
+    // Si ambos son números, orden numérico
+    const numA = parseFloat(a.size);
+    const numB = parseFloat(b.size);
+    if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
+    
+    // Si ambos son letras en el array de orden
+    const idxA = sizeOrder.indexOf(a.size.toUpperCase());
+    const idxB = sizeOrder.indexOf(b.size.toUpperCase());
+    if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+    
+    // Fallback a alfabético
+    return a.size.localeCompare(b.size);
+  });
+
+  const handleStockChange = (sizeName: string, delta: number) => {
+    setSizes(sizes.map(s => {
+      if (s.size === sizeName) {
+        return { ...s, stock_quantity: Math.max(0, s.stock_quantity + delta), action: 'update' };
+      }
+      return s;
+    }));
+  };
+
+  const handleStockInput = (sizeName: string, val: number) => {
+    setSizes(sizes.map(s => {
+      if (s.size === sizeName) {
+        return { ...s, stock_quantity: Math.max(0, val), action: 'update' };
+      }
+      return s;
+    }));
+  };
+
+  const handleDeleteSize = (sizeName: string) => {
+    setSizes(sizes.map(s => s.size === sizeName ? { ...s, action: 'delete' } : s));
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploading(true);
+    try {
+      const supabase = createClient();
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const { error: uploadError } = await supabase.storage.from('products').upload(fileName, file);
+      if (!uploadError) {
+        const { data: { publicUrl } } = supabase.storage.from('products').getPublicUrl(fileName);
+        const formData = new FormData();
+        formData.append('productId', product.id);
+        formData.append('imageUrl', publicUrl);
+        await editProductImage(formData);
+        router.refresh();
+      }
+    } catch (error) {
+      console.error(error);
+    }
+    setIsUploading(false);
+  };
 
   return (
-    <div className="flex items-center bg-[#111] border border-[#333] justify-between">
-      <span className="font-bold text-sm uppercase px-4 py-2 border-r border-[#333] w-20 text-center">{ps.size}</span>
-      
-      <div className="flex flex-1">
-        <form action={async (formData) => { await updateStock(formData); router.refresh(); }} className="flex flex-1 items-center justify-center">
-          <input type="hidden" name="productId" value={selectedProduct.id} />
-          <input type="hidden" name="size" value={ps.size} />
+    <div 
+      className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      {/* Detenemos la propagación para que los clics dentro no cierren el modal */}
+      <div 
+        className="bg-[#0a0a0a] border border-[#333] w-full max-w-2xl max-h-[90vh] overflow-y-auto flex flex-col relative shadow-2xl"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="flex justify-between items-center p-4 border-b border-[#333] sticky top-0 bg-[#0a0a0a] z-20">
+          <h2 className="font-montserrat font-black text-lg uppercase tracking-wider text-white">Editar Producto</h2>
+          <button onClick={onClose} className="text-neutral-500 hover:text-[#E60000] transition-colors p-1">
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        <form 
+          action={async (formData) => { 
+            await updateFullProduct(formData); 
+            onClose(); 
+            router.refresh(); 
+          }} 
+          className="flex flex-col"
+        >
+          <input type="hidden" name="productId" value={product.id} />
+          <input type="hidden" name="sizesJson" value={JSON.stringify(sizes)} />
           
-          <div className="flex items-center gap-1 mx-2">
-            <button type="button" onClick={() => setStock(Math.max(0, stock - 1))} className="w-8 h-8 bg-[#333] hover:bg-white hover:text-black font-black text-lg transition-colors flex items-center justify-center rounded-sm">-</button>
-            <input 
-              type="number" 
-              name="stock" 
-              value={stock} 
-              onChange={(e) => setStock(parseInt(e.target.value) || 0)}
-              className="w-12 bg-transparent text-white text-center text-sm font-bold focus:outline-none [-moz-appearance:_textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
-              min="0"
-            />
-            <button type="button" onClick={() => setStock(stock + 1)} className="w-8 h-8 bg-[#333] hover:bg-white hover:text-black font-black text-lg transition-colors flex items-center justify-center rounded-sm">+</button>
+          <div className="p-6 flex flex-col md:flex-row gap-6">
+            <div className="w-full md:w-1/3 flex flex-col gap-3">
+              <div className="aspect-square bg-[#111] border border-[#333] relative overflow-hidden group">
+                <img src={product.image_url} className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer">
+                  <input type="file" accept="image/*" onChange={handleImageUpload} className="absolute inset-0 opacity-0 cursor-pointer" />
+                  <Upload className="w-8 h-8 text-white mb-2" />
+                  <span className="text-white font-bold text-xs uppercase tracking-widest text-center px-4">
+                    {isUploading ? 'Subiendo...' : 'Cambiar Imagen'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="w-full md:w-2/3 flex flex-col gap-6">
+              
+              <div className="flex justify-between items-start gap-4">
+                <div className="flex-1">
+                  <input 
+                    type="text" name="name" value={name} onChange={e => setName(e.target.value)}
+                    className="w-full font-montserrat font-black text-xl uppercase text-white bg-transparent border-b border-transparent hover:border-[#333] focus:border-white focus:outline-none transition-colors mb-1" 
+                    required title="Modificar Nombre"
+                  />
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg font-bold text-[#E60000]">$</span>
+                    <input 
+                      type="number" name="price" value={price} onChange={e => setPrice(parseFloat(e.target.value))}
+                      className="w-24 text-lg font-bold text-[#E60000] bg-transparent border-b border-transparent hover:border-[#333] focus:border-white focus:outline-none transition-colors" 
+                      required title="Modificar Precio"
+                    />
+                    <select 
+                      name="category" value={category} onChange={e => setCategory(e.target.value)}
+                      className="text-sm text-neutral-500 bg-transparent border-b border-transparent hover:border-[#333] focus:border-white focus:outline-none transition-colors ml-2 cursor-pointer"
+                    >
+                      <option value="buzos">Buzos</option>
+                      <option value="pantalones">Pantalones</option>
+                      <option value="calzado">Calzado</option>
+                      <option value="accesorios">Accesorios</option>
+                      <option value="perfumes">Perfumes</option>
+                      <option value="gorras">Gorras</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <button 
+                  type="button"
+                  onClick={async () => {
+                    if (confirm('¿Eliminar este producto permanentemente?')) {
+                      const fd = new FormData(); fd.append('productIds', product.id);
+                      await deleteProducts(fd); onClose(); router.refresh();
+                    }
+                  }}
+                  className="p-2 border border-[#333] text-neutral-500 hover:border-red-500 hover:text-red-500 hover:bg-red-500/10 transition-colors"
+                >
+                  <Trash2 className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div>
+                <h4 className="font-bold text-xs uppercase tracking-widest text-neutral-400 mb-3 border-b border-[#333] pb-2">Stock por Talle</h4>
+                <div className="flex flex-col gap-2">
+                  {sortedSizes.map((ps) => (
+                    <div key={ps.size} className="flex items-center bg-[#111] border border-[#333] justify-between group">
+                      <span className="font-bold text-sm uppercase px-4 py-2 border-r border-[#333] w-20 text-center">{ps.size}</span>
+                      <div className="flex flex-1 items-center justify-between">
+                        <div className="flex items-center gap-1 mx-4">
+                          <button type="button" onClick={() => handleStockChange(ps.size, -1)} className="w-8 h-8 bg-[#333] hover:bg-white hover:text-black font-black text-lg transition-colors flex items-center justify-center rounded-sm">-</button>
+                          <input 
+                            type="number" value={ps.stock_quantity} onChange={(e) => handleStockInput(ps.size, parseInt(e.target.value) || 0)}
+                            className="w-12 bg-transparent text-white text-center text-sm font-bold focus:outline-none [-moz-appearance:_textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
+                            min="0"
+                          />
+                          <button type="button" onClick={() => handleStockChange(ps.size, 1)} className="w-8 h-8 bg-[#333] hover:bg-white hover:text-black font-black text-lg transition-colors flex items-center justify-center rounded-sm">+</button>
+                        </div>
+                        <button type="button" onClick={() => handleDeleteSize(ps.size)} className="px-4 py-3 text-red-500 opacity-0 group-hover:opacity-100 hover:bg-red-500 hover:text-white transition-colors border-l border-[#333]">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex items-center bg-transparent border border-dashed border-[#666] mt-4">
+                  <input 
+                    type="text" name="newSize" value={newSizeInput} onChange={e => setNewSizeInput(e.target.value)}
+                    placeholder="AGREGAR NUEVO TALLE" 
+                    className="w-full bg-transparent text-white text-center text-sm font-bold uppercase focus:outline-none p-2"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        // Prevent form submit if they just want to add a size
+                        if (newSizeInput.trim()) {
+                          e.preventDefault();
+                          const s = newSizeInput.trim();
+                          if (!sizes.find(x => x.size === s)) {
+                            setSizes([...sizes, { size: s, stock_quantity: 0, action: 'keep' }]);
+                          }
+                          setNewSizeInput('');
+                        }
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
           </div>
 
-          <button type="submit" title="Guardar Stock" className="px-4 py-3 text-green-500 hover:bg-green-500 hover:text-white transition-colors border-l border-[#333] ml-auto">
-            <Save className="w-5 h-5" />
-          </button>
-        </form>
-        
-        <form action={async (formData) => { await deleteSize(formData); router.refresh(); }} className="flex items-center">
-          <input type="hidden" name="productId" value={selectedProduct.id} />
-          <input type="hidden" name="size" value={ps.size} />
-          <button type="submit" title="Eliminar Talle" className="px-4 py-3 text-red-500 hover:bg-red-500 hover:text-white transition-colors border-l border-[#333]">
-            <Trash2 className="w-5 h-5" />
-          </button>
+          {/* Botón Maestro de Guardado */}
+          <div className="sticky bottom-0 bg-[#0a0a0a] p-4 border-t border-[#333] flex justify-end z-20 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
+            <button type="submit" className="bg-white text-black hover:bg-[#E60000] hover:text-white transition-colors px-8 py-3 font-black text-sm uppercase tracking-widest flex items-center gap-2">
+              <Save className="w-5 h-5" /> Guardar Todo
+            </button>
+          </div>
         </form>
       </div>
     </div>

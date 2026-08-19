@@ -171,3 +171,50 @@ export async function editProductDetails(formData: FormData) {
   revalidatePath('/admin')
   revalidatePath('/catalogo')
 }
+
+export async function updateFullProduct(formData: FormData) {
+  const supabase = await createServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user || user.email !== 'fjborrazas3@gmail.com') throw new Error('Unauthorized')
+
+  const supabaseAdmin = createAdminClient(process.env.NEXT_PUBLIC_SUPABASE_URL || '', process.env.SUPABASE_SERVICE_ROLE_KEY || '')
+  
+  const productId = formData.get('productId') as string
+  const name = formData.get('name') as string
+  const price = parseFloat(formData.get('price') as string)
+  const category = formData.get('category') as string
+  
+  // Array of sizes in JSON format
+  const sizesJson = formData.get('sizesJson') as string
+  let sizes = []
+  try {
+    sizes = JSON.parse(sizesJson || '[]')
+  } catch(e) {}
+
+  if (!productId) return
+
+  // Update product info
+  await supabaseAdmin.from('products').update({ name, price, category }).eq('id', productId)
+  
+  // Update sizes stock
+  for (const sizeObj of sizes) {
+    if (sizeObj.action === 'delete') {
+      await supabaseAdmin.from('product_sizes').delete().eq('product_id', productId).eq('size', sizeObj.size)
+    } else {
+      await supabaseAdmin.from('product_sizes').update({ stock_quantity: sizeObj.stock_quantity }).eq('product_id', productId).eq('size', sizeObj.size)
+    }
+  }
+
+  // Check if there is a new size to add
+  const newSize = (formData.get('newSize') as string || '').trim()
+  if (newSize) {
+    await supabaseAdmin.from('product_sizes').insert({
+      product_id: productId,
+      size: newSize,
+      stock_quantity: 0
+    })
+  }
+
+  revalidatePath('/admin')
+  revalidatePath('/catalogo')
+}
