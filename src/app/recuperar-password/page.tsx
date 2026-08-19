@@ -1,18 +1,22 @@
-import { login, signup } from './actions'
+import { resetPassword } from './actions'
 
-export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string, message?: string }> }) {
+export default async function RecuperarPasswordPage({ searchParams }: { searchParams: Promise<{ error?: string, message?: string }> }) {
   const { error, message } = await searchParams;
 
   return (
     <div className="container mx-auto px-4 py-20 flex flex-col items-center max-w-md">
       <div className="w-full bg-[#0a0a0a] p-8 border border-[#333]">
         <h1 className="font-montserrat font-black text-3xl uppercase tracking-wider text-white mb-6 text-center">
-          Ingresar
+          Recuperar Contraseña
         </h1>
+        
+        <p className="text-neutral-400 text-sm text-center mb-6">
+          Ingresá tu email y te enviaremos un enlace para restablecer tu contraseña.
+        </p>
         
         {error && (
           <div className="bg-red-500/10 border border-red-500 text-red-500 p-3 mb-6 text-sm font-bold text-center">
-            {error === 'true' ? 'Credenciales inválidas o email sin confirmar.' : error}
+            {error}
           </div>
         )}
 
@@ -34,36 +38,20 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
               className="w-full bg-[#111] border border-[#333] p-3 text-white focus:border-white focus:outline-none transition-colors"
             />
           </div>
-          
-          <div className="mb-4">
-            <div className="flex justify-between items-center mb-2">
-              <label htmlFor="password" className="block text-xs font-bold text-neutral-400 uppercase tracking-widest">Contraseña</label>
-              <a href="/recuperar-password" className="text-xs font-bold text-[#E60000] hover:text-white transition-colors">¿Olvidaste tu contraseña?</a>
-            </div>
-            <input 
-              id="password" 
-              name="password" 
-              type="password" 
-              required 
-              placeholder="••••••••"
-              className="w-full bg-[#111] border border-[#333] p-3 text-white focus:border-white focus:outline-none transition-colors"
-            />
-          </div>
 
           <button 
-            formAction={login} 
+            formAction={resetPassword} 
             className="w-full bg-[#E60000] text-white font-black py-4 uppercase tracking-widest hover:bg-white hover:text-black hover:border-white border border-[#E60000] transition-colors"
           >
-            Iniciar Sesión
-          </button>
-          
-          <button 
-            formAction={signup} 
-            className="w-full bg-transparent text-white font-black py-4 uppercase tracking-widest hover:bg-[#111] border border-[#333] transition-colors mt-2"
-          >
-            Crear Cuenta
+            Enviar Enlace
           </button>
         </form>
+        
+        <div className="mt-6 text-center">
+          <a href="/login" className="text-xs font-bold text-neutral-400 hover:text-white uppercase tracking-widest transition-colors">
+            Volver al Login
+          </a>
+        </div>
       </div>
     </div>
   )

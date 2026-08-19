@@ -5,7 +5,9 @@ export type Product = {
   name: string;
   description: string;
   price: number;
-  category: string;
+  category: string; // Main category (e.g. pantalones)
+  subcategory?: string; // Subcategory (e.g. joggers)
+  fullCategory: string; // Raw DB value (e.g. pantalones-joggers)
   image: string; // Mapeado desde image_url
   isNew: boolean; // Mapeado desde is_new
   images: string[];
@@ -13,12 +15,15 @@ export type Product = {
 };
 
 function mapProductRecord(p: any): Product {
+  const [cat, subcat] = p.category.split('-');
   return {
     id: p.id,
     name: p.name,
     description: p.description,
     price: Number(p.price),
-    category: p.category,
+    category: cat,
+    subcategory: subcat || '',
+    fullCategory: p.category,
     image: p.image_url,
     isNew: p.is_new,
     images: [p.image_url],
@@ -29,11 +34,15 @@ function mapProductRecord(p: any): Product {
   };
 }
 
-export async function getProductsByCategory(category?: string): Promise<Product[]> {
+export async function getProductsByCategory(category?: string, subcategory?: string): Promise<Product[]> {
   let query = supabase.from('products').select('*, product_sizes(size, stock_quantity)');
   
   if (category && category !== 'todos') {
-    query = query.eq('category', category);
+    if (subcategory) {
+      query = query.eq('category', `${category}-${subcategory}`);
+    } else {
+      query = query.like('category', `${category}%`);
+    }
   }
   
   const { data, error } = await query;

@@ -8,12 +8,12 @@ export const revalidate = 0;
 
 export default async function Home() {
   const categories = [
-    { name: "Buzos", image: "/images/buzo-new.png" },
-    { name: "Joggers", image: "/images/jogger.png" },
-    { name: "Calzado", image: "/images/calzado.png" },
-    { name: "Gorras", image: "/images/gorra-new.png" },
-    { name: "Perfumes", image: "/images/perfume.png" },
-    { name: "Accesorios", image: "/images/reloj.png" },
+    { name: "Buzos", image: "/images/buzo-new.png", url: "/catalogo?categoria=buzos" },
+    { name: "Joggers", image: "/images/jogger.png", url: "/catalogo?categoria=pantalones&subcategoria=joggers" },
+    { name: "Calzado", image: "/images/calzado.png", url: "/catalogo?categoria=calzado" },
+    { name: "Gorras", image: "/images/gorra-new.png", url: "/catalogo?categoria=gorras" },
+    { name: "Perfumes", image: "/images/perfume.png", url: "/catalogo?categoria=perfumes" },
+    { name: "Accesorios", image: "/images/reloj.png", url: "/catalogo?categoria=accesorios" },
   ];
 
   const newArrivals = await getNewArrivals();
@@ -78,7 +78,7 @@ export default async function Home() {
         <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide -mx-4 px-4">
           {categories.map((cat) => (
             <Link 
-              href={`/catalogo?categoria=${cat.name.toLowerCase()}`} 
+              href={cat.url} 
               key={cat.name} 
               className="group relative w-40 md:w-56 aspect-[3/4] shrink-0 snap-start overflow-hidden rounded-none bg-[#0a0a0a] block border border-[#333] hover:border-[#666] transition-colors"
             >

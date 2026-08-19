@@ -1,18 +1,18 @@
-import { login, signup } from './actions'
+import { updatePassword } from './actions'
 
-export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string, message?: string }> }) {
+export default async function ActualizarPasswordPage({ searchParams }: { searchParams: Promise<{ error?: string, message?: string }> }) {
   const { error, message } = await searchParams;
 
   return (
     <div className="container mx-auto px-4 py-20 flex flex-col items-center max-w-md">
       <div className="w-full bg-[#0a0a0a] p-8 border border-[#333]">
         <h1 className="font-montserrat font-black text-3xl uppercase tracking-wider text-white mb-6 text-center">
-          Ingresar
+          Nueva Contraseña
         </h1>
         
         {error && (
           <div className="bg-red-500/10 border border-red-500 text-red-500 p-3 mb-6 text-sm font-bold text-center">
-            {error === 'true' ? 'Credenciales inválidas o email sin confirmar.' : error}
+            {error}
           </div>
         )}
 
@@ -24,22 +24,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
         
         <form className="flex flex-col gap-4">
           <div>
-            <label htmlFor="email" className="block text-xs font-bold text-neutral-400 uppercase tracking-widest mb-2">Email</label>
-            <input 
-              id="email" 
-              name="email" 
-              type="email" 
-              required 
-              placeholder="tu@email.com"
-              className="w-full bg-[#111] border border-[#333] p-3 text-white focus:border-white focus:outline-none transition-colors"
-            />
-          </div>
-          
-          <div className="mb-4">
-            <div className="flex justify-between items-center mb-2">
-              <label htmlFor="password" className="block text-xs font-bold text-neutral-400 uppercase tracking-widest">Contraseña</label>
-              <a href="/recuperar-password" className="text-xs font-bold text-[#E60000] hover:text-white transition-colors">¿Olvidaste tu contraseña?</a>
-            </div>
+            <label htmlFor="password" className="block text-xs font-bold text-neutral-400 uppercase tracking-widest mb-2">Nueva Contraseña</label>
             <input 
               id="password" 
               name="password" 
@@ -49,19 +34,24 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
               className="w-full bg-[#111] border border-[#333] p-3 text-white focus:border-white focus:outline-none transition-colors"
             />
           </div>
+          
+          <div>
+            <label htmlFor="confirmPassword" className="block text-xs font-bold text-neutral-400 uppercase tracking-widest mb-2">Confirmar Contraseña</label>
+            <input 
+              id="confirmPassword" 
+              name="confirmPassword" 
+              type="password" 
+              required 
+              placeholder="••••••••"
+              className="w-full bg-[#111] border border-[#333] p-3 text-white focus:border-white focus:outline-none transition-colors"
+            />
+          </div>
 
           <button 
-            formAction={login} 
+            formAction={updatePassword} 
             className="w-full bg-[#E60000] text-white font-black py-4 uppercase tracking-widest hover:bg-white hover:text-black hover:border-white border border-[#E60000] transition-colors"
           >
-            Iniciar Sesión
-          </button>
-          
-          <button 
-            formAction={signup} 
-            className="w-full bg-transparent text-white font-black py-4 uppercase tracking-widest hover:bg-[#111] border border-[#333] transition-colors mt-2"
-          >
-            Crear Cuenta
+            Actualizar Contraseña
           </button>
         </form>
       </div>

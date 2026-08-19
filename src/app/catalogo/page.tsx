@@ -15,6 +15,7 @@ function CatalogoContent() {
   const [showFilters, setShowFilters] = useState(false);
   const searchParams = useSearchParams();
   const categoryParam = searchParams.get("categoria");
+  const subcategoryParam = searchParams.get("subcategoria");
 
   const [allFetchedProducts, setAllFetchedProducts] = useState<any[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
@@ -27,7 +28,7 @@ function CatalogoContent() {
   useEffect(() => {
     async function load() {
       setIsLoading(true);
-      const data = await getProductsByCategory(categoryParam || undefined);
+      const data = await getProductsByCategory(categoryParam || undefined, subcategoryParam || undefined);
       setAllFetchedProducts(data);
       setFilteredProducts(data);
       // Reset filters when category changes
@@ -36,7 +37,7 @@ function CatalogoContent() {
       setIsLoading(false);
     }
     load();
-  }, [categoryParam]);
+  }, [categoryParam, subcategoryParam]);
 
   // Aplicar filtros locales cuando selectedBrands o selectedSizes cambian
   useEffect(() => {
@@ -154,8 +155,29 @@ function CatalogoContent() {
               <h3 className="font-montserrat font-black tracking-wider text-lg mb-3 uppercase">Categoría</h3>
               <div className="space-y-3 text-sm font-semibold text-neutral-400 flex flex-col items-start">
                 <Link replace onClick={() => setShowFilters(false)} href="/catalogo" className={`block hover:text-[#E60000] transition-colors ${!categoryParam ? 'text-[#E60000]' : ''}`}>Todos los productos</Link>
-                <Link replace onClick={() => setShowFilters(false)} href="/catalogo?categoria=buzos" className={`block hover:text-[#E60000] transition-colors ${categoryParam === 'buzos' ? 'text-[#E60000]' : ''}`}>Buzos</Link>
-                <Link replace onClick={() => setShowFilters(false)} href="/catalogo?categoria=pantalones" className={`block hover:text-[#E60000] transition-colors ${categoryParam === 'pantalones' ? 'text-[#E60000]' : ''}`}>Pantalones</Link>
+                
+                <div className="w-full">
+                  <Link replace onClick={() => setShowFilters(false)} href="/catalogo?categoria=buzos" className={`block hover:text-[#E60000] transition-colors ${categoryParam === 'buzos' && !subcategoryParam ? 'text-[#E60000]' : ''}`}>Buzos</Link>
+                  {categoryParam === 'buzos' && (
+                    <div className="ml-4 mt-2 mb-2 space-y-2 flex flex-col border-l border-[#333] pl-3 text-xs">
+                      <Link replace onClick={() => setShowFilters(false)} href="/catalogo?categoria=buzos&subcategoria=hoodies" className={`block hover:text-white transition-colors ${subcategoryParam === 'hoodies' ? 'text-white font-bold' : ''}`}>Hoodies</Link>
+                      <Link replace onClick={() => setShowFilters(false)} href="/catalogo?categoria=buzos&subcategoria=cuelloredondo" className={`block hover:text-white transition-colors ${subcategoryParam === 'cuelloredondo' ? 'text-white font-bold' : ''}`}>Cuello Redondo</Link>
+                    </div>
+                  )}
+                </div>
+
+                <div className="w-full">
+                  <Link replace onClick={() => setShowFilters(false)} href="/catalogo?categoria=pantalones" className={`block hover:text-[#E60000] transition-colors ${categoryParam === 'pantalones' && !subcategoryParam ? 'text-[#E60000]' : ''}`}>Pantalones</Link>
+                  {categoryParam === 'pantalones' && (
+                    <div className="ml-4 mt-2 mb-2 space-y-2 flex flex-col border-l border-[#333] pl-3 text-xs">
+                      <Link replace onClick={() => setShowFilters(false)} href="/catalogo?categoria=pantalones&subcategoria=joggers" className={`block hover:text-white transition-colors ${subcategoryParam === 'joggers' ? 'text-white font-bold' : ''}`}>Joggers</Link>
+                      <Link replace onClick={() => setShowFilters(false)} href="/catalogo?categoria=pantalones&subcategoria=jeans" className={`block hover:text-white transition-colors ${subcategoryParam === 'jeans' ? 'text-white font-bold' : ''}`}>Jeans</Link>
+                      <Link replace onClick={() => setShowFilters(false)} href="/catalogo?categoria=pantalones&subcategoria=cargos" className={`block hover:text-white transition-colors ${subcategoryParam === 'cargos' ? 'text-white font-bold' : ''}`}>Cargos</Link>
+                      <Link replace onClick={() => setShowFilters(false)} href="/catalogo?categoria=pantalones&subcategoria=shorts" className={`block hover:text-white transition-colors ${subcategoryParam === 'shorts' ? 'text-white font-bold' : ''}`}>Shorts</Link>
+                    </div>
+                  )}
+                </div>
+
                 <Link replace onClick={() => setShowFilters(false)} href="/catalogo?categoria=accesorios" className={`block hover:text-[#E60000] transition-colors ${categoryParam === 'accesorios' ? 'text-[#E60000]' : ''}`}>Accesorios</Link>
                 <Link replace onClick={() => setShowFilters(false)} href="/catalogo?categoria=calzado" className={`block hover:text-[#E60000] transition-colors ${categoryParam === 'calzado' ? 'text-[#E60000]' : ''}`}>Calzado</Link>
                 <Link replace onClick={() => setShowFilters(false)} href="/catalogo?categoria=perfumes" className={`block hover:text-[#E60000] transition-colors ${categoryParam === 'perfumes' ? 'text-[#E60000]' : ''}`}>Perfumes</Link>

@@ -14,6 +14,13 @@ export default function InventoryManager({ products }: { products: any[] }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [gridSize, setGridSize] = useState<"small" | "medium" | "large">("medium");
+  const [newMainCategory, setNewMainCategory] = useState("buzos");
+  const [newSubCategory, setNewSubCategory] = useState("");
+  
+  const SUB_CATEGORIES: Record<string, {id: string, name: string}[]> = {
+    buzos: [{id: 'hoodies', name: 'Hoodies'}, {id: 'cuelloredondo', name: 'Cuello Redondo'}],
+    pantalones: [{id: 'joggers', name: 'Joggers'}, {id: 'jeans', name: 'Jeans'}, {id: 'cargos', name: 'Cargos'}, {id: 'shorts', name: 'Shorts'}],
+  };
   
   // Modo Selección Múltiple
   const [isSelectionMode, setIsSelectionMode] = useState(false);
@@ -27,7 +34,7 @@ export default function InventoryManager({ products }: { products: any[] }) {
   const filteredProducts = useMemo(() => {
     return products.filter(p => {
       const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesCategory = categoryFilter === "all" || p.category === categoryFilter;
+      const matchesCategory = categoryFilter === "all" || p.category.startsWith(categoryFilter);
       return matchesSearch && matchesCategory;
     });
   }, [products, searchQuery, categoryFilter]);
@@ -120,14 +127,38 @@ export default function InventoryManager({ products }: { products: any[] }) {
           <form ref={formRef} action={handleAddProduct} className="flex flex-col gap-4">
             <input type="text" name="name" placeholder="Nombre (Ej: Buzo Jordan)" required className="w-full bg-[#111] border border-[#333] p-3 text-white focus:border-white focus:outline-none" />
             <input type="number" name="price" placeholder="Precio ($)" required className="w-full bg-[#111] border border-[#333] p-3 text-white focus:border-white focus:outline-none" />
-            <select name="category" required className="w-full bg-[#111] border border-[#333] p-3 text-white focus:border-white focus:outline-none">
-              <option value="buzos">Buzos</option>
-              <option value="pantalones">Pantalones</option>
-              <option value="calzado">Calzado</option>
-              <option value="accesorios">Accesorios</option>
-              <option value="perfumes">Perfumes</option>
-              <option value="gorras">Gorras</option>
-            </select>
+            <div className="flex gap-2">
+              <select 
+                value={newMainCategory}
+                onChange={(e) => {
+                  setNewMainCategory(e.target.value);
+                  setNewSubCategory("");
+                }}
+                className="w-full bg-[#111] border border-[#333] p-3 text-white focus:border-white focus:outline-none"
+              >
+                <option value="buzos">Buzos</option>
+                <option value="pantalones">Pantalones</option>
+                <option value="calzado">Calzado</option>
+                <option value="accesorios">Accesorios</option>
+                <option value="perfumes">Perfumes</option>
+                <option value="gorras">Gorras</option>
+              </select>
+              
+              {SUB_CATEGORIES[newMainCategory] && (
+                <select 
+                  value={newSubCategory}
+                  onChange={(e) => setNewSubCategory(e.target.value)}
+                  className="w-full bg-[#111] border border-[#333] p-3 text-white focus:border-white focus:outline-none"
+                >
+                  <option value="">Sin Subcategoría</option>
+                  {SUB_CATEGORIES[newMainCategory].map(sub => (
+                    <option key={sub.id} value={sub.id}>{sub.name}</option>
+                  ))}
+                </select>
+              )}
+              
+              <input type="hidden" name="category" value={newSubCategory ? `${newMainCategory}-${newSubCategory}` : newMainCategory} />
+            </div>
             
             <input type="text" id="new-product-image-url" name="image_url" placeholder="URL de la imagen" required className="w-full bg-[#111] border border-[#333] p-3 text-white focus:border-white focus:outline-none text-xs text-neutral-500" readOnly />
             
@@ -274,7 +305,15 @@ export default function InventoryManager({ products }: { products: any[] }) {
 function EditProductModal({ product, onClose, router }: { product: any, onClose: () => void, router: any }) {
   const [name, setName] = useState(product.name);
   const [price, setPrice] = useState(product.price);
-  const [category, setCategory] = useState(product.category);
+  
+  const [cat, subcat] = product.category.split('-');
+  const [mainCategory, setMainCategory] = useState(cat || 'buzos');
+  const [subCategory, setSubCategory] = useState(subcat || '');
+
+  const SUB_CATEGORIES: Record<string, {id: string, name: string}[]> = {
+    buzos: [{id: 'hoodies', name: 'Hoodies'}, {id: 'cuelloredondo', name: 'Cuello Redondo'}],
+    pantalones: [{id: 'joggers', name: 'Joggers'}, {id: 'jeans', name: 'Jeans'}, {id: 'cargos', name: 'Cargos'}, {id: 'shorts', name: 'Shorts'}],
+  };
   
   // Local state for sizes: we want to track the current sizes and any edits
   const initialSizes = (product.product_sizes || []).map((ps: any) => ({
@@ -406,17 +445,33 @@ function EditProductModal({ product, onClose, router }: { product: any, onClose:
                       className="w-24 text-lg font-bold text-[#E60000] bg-transparent border-b border-transparent hover:border-[#333] focus:border-white focus:outline-none transition-colors" 
                       required title="Modificar Precio"
                     />
-                    <select 
-                      name="category" value={category} onChange={e => setCategory(e.target.value)}
-                      className="text-sm text-neutral-500 bg-transparent border-b border-transparent hover:border-[#333] focus:border-white focus:outline-none transition-colors ml-2 cursor-pointer"
-                    >
-                      <option value="buzos">Buzos</option>
-                      <option value="pantalones">Pantalones</option>
-                      <option value="calzado">Calzado</option>
-                      <option value="accesorios">Accesorios</option>
-                      <option value="perfumes">Perfumes</option>
-                      <option value="gorras">Gorras</option>
-                    </select>
+                    <div className="flex gap-2">
+                      <select 
+                        value={mainCategory} onChange={e => { setMainCategory(e.target.value); setSubCategory(""); }}
+                        className="text-sm text-neutral-500 bg-transparent border-b border-transparent hover:border-[#333] focus:border-white focus:outline-none transition-colors ml-2 cursor-pointer"
+                      >
+                        <option value="buzos">Buzos</option>
+                        <option value="pantalones">Pantalones</option>
+                        <option value="calzado">Calzado</option>
+                        <option value="accesorios">Accesorios</option>
+                        <option value="perfumes">Perfumes</option>
+                        <option value="gorras">Gorras</option>
+                      </select>
+                      
+                      {SUB_CATEGORIES[mainCategory] && (
+                        <select 
+                          value={subCategory} onChange={e => setSubCategory(e.target.value)}
+                          className="text-sm text-neutral-500 bg-transparent border-b border-transparent hover:border-[#333] focus:border-white focus:outline-none transition-colors cursor-pointer"
+                        >
+                          <option value="">(Ninguna)</option>
+                          {SUB_CATEGORIES[mainCategory].map(sub => (
+                            <option key={sub.id} value={sub.id}>{sub.name}</option>
+                          ))}
+                        </select>
+                      )}
+                      
+                      <input type="hidden" name="category" value={subCategory ? `${mainCategory}-${subCategory}` : mainCategory} />
+                    </div>
                   </div>
                 </div>
                 
