@@ -6,7 +6,7 @@ import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 
 // Re-usamos las server actions exportadas desde admin/actions.ts
-import { updateStock, deleteSize, addSize, addProduct, editProductImage, deleteProducts } from "@/app/admin/actions";
+import { updateStock, deleteSize, addSize, addProduct, editProductImage, deleteProducts, editProductDetails } from "@/app/admin/actions";
 
 export default function InventoryManager({ products }: { products: any[] }) {
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
@@ -295,26 +295,81 @@ export default function InventoryManager({ products }: { products: any[] }) {
               {/* Lado Derecho: Datos y Stock */}
               <div className="w-full md:w-2/3 flex flex-col gap-6">
                 
-                {/* Info Básica */}
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="font-montserrat font-black text-xl uppercase text-white mb-1">{selectedProduct.name}</h3>
-                    <p className="text-lg font-bold text-[#E60000]">${selectedProduct.price.toLocaleString('es-AR')} <span className="text-sm text-neutral-500 ml-2">[{selectedProduct.category}]</span></p>
+                {/* Info Básica (Editable) */}
+                <form 
+                  action={async (formData) => { 
+                    await editProductDetails(formData); 
+                    setSelectedProduct({
+                      ...selectedProduct,
+                      name: formData.get('name'),
+                      price: parseFloat(formData.get('price') as string),
+                      category: formData.get('category')
+                    });
+                    router.refresh(); 
+                  }} 
+                  className="flex flex-col gap-3"
+                >
+                  <input type="hidden" name="productId" value={selectedProduct.id} />
+                  <div className="flex justify-between items-start gap-4">
+                    <div className="flex-1">
+                      <input 
+                        type="text" 
+                        name="name" 
+                        defaultValue={selectedProduct.name} 
+                        className="w-full font-montserrat font-black text-xl uppercase text-white bg-transparent border-b border-transparent hover:border-[#333] focus:border-white focus:outline-none transition-colors mb-1" 
+                        required 
+                        title="Modificar Nombre"
+                      />
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg font-bold text-[#E60000]">$</span>
+                        <input 
+                          type="number" 
+                          name="price" 
+                          defaultValue={selectedProduct.price} 
+                          className="w-24 text-lg font-bold text-[#E60000] bg-transparent border-b border-transparent hover:border-[#333] focus:border-white focus:outline-none transition-colors" 
+                          required 
+                          title="Modificar Precio"
+                        />
+                        <select 
+                          name="category" 
+                          defaultValue={selectedProduct.category} 
+                          className="text-sm text-neutral-500 bg-transparent border-b border-transparent hover:border-[#333] focus:border-white focus:outline-none transition-colors ml-2 cursor-pointer"
+                          required
+                          title="Modificar Categoría"
+                        >
+                          <option value="buzos">Buzos</option>
+                          <option value="pantalones">Pantalones</option>
+                          <option value="calzado">Calzado</option>
+                          <option value="accesorios">Accesorios</option>
+                          <option value="perfumes">Perfumes</option>
+                          <option value="gorras">Gorras</option>
+                        </select>
+                      </div>
+                    </div>
+                    
+                    <div className="flex flex-col gap-2 shrink-0">
+                      <button type="submit" title="Guardar Cambios de Info Básica" className="p-2 border border-green-500 text-green-500 hover:bg-green-500 hover:text-white transition-colors">
+                        <Save className="w-5 h-5" />
+                      </button>
+                      <button 
+                        type="button"
+                        onClick={async () => {
+                          if (confirm('¿Eliminar este producto permanentemente?')) {
+                            const formData = new FormData();
+                            formData.append('productIds', selectedProduct.id);
+                            await deleteProducts(formData);
+                            setSelectedProduct(null);
+                            router.refresh();
+                          }
+                        }}
+                        title="Eliminar Producto" 
+                        className="p-2 border border-[#333] text-neutral-500 hover:border-red-500 hover:text-red-500 hover:bg-red-500/10 transition-colors"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </div>
                   </div>
-                  {/* Eliminar Producto Individual */}
-                  <form action={async (formData) => {
-                    if (confirm('¿Eliminar este producto permanentemente?')) {
-                      await deleteProducts(formData);
-                      setSelectedProduct(null);
-                      router.refresh();
-                    }
-                  }}>
-                    <input type="hidden" name="productIds" value={selectedProduct.id} />
-                    <button type="submit" title="Eliminar Producto" className="p-2 border border-[#333] text-neutral-500 hover:border-red-500 hover:text-red-500 hover:bg-red-500/10 transition-colors">
-                      <Trash2 className="w-5 h-5" />
-                    </button>
-                  </form>
-                </div>
+                </form>
 
                 {/* Gestor de Talles */}
                 <div>
