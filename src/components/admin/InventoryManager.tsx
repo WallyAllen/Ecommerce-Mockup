@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 
 // Re-usamos las server actions exportadas desde admin/actions.ts
 import { updateFullProduct, updateStock, deleteSize, addSize, addProduct, editProductImage, deleteProducts, editProductDetails } from "@/app/admin/actions";
+import { MAIN_CATEGORIES, SUB_CATEGORIES } from "@/lib/categories";
 
 export default function InventoryManager({ products }: { products: any[] }) {
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
@@ -14,13 +15,8 @@ export default function InventoryManager({ products }: { products: any[] }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [gridSize, setGridSize] = useState<"small" | "medium" | "large">("medium");
-  const [newMainCategory, setNewMainCategory] = useState("buzos");
+  const [newMainCategory, setNewMainCategory] = useState("remeras");
   const [newSubCategory, setNewSubCategory] = useState("");
-  
-  const SUB_CATEGORIES: Record<string, {id: string, name: string}[]> = {
-    buzos: [{id: 'hoodies', name: 'Hoodies'}, {id: 'cuelloredondo', name: 'Cuello Redondo'}],
-    pantalones: [{id: 'joggers', name: 'Joggers'}, {id: 'jeans', name: 'Jeans'}, {id: 'cargos', name: 'Cargos'}, {id: 'shorts', name: 'Shorts'}],
-  };
   
   // Modo Selección Múltiple
   const [isSelectionMode, setIsSelectionMode] = useState(false);
@@ -136,12 +132,9 @@ export default function InventoryManager({ products }: { products: any[] }) {
                 }}
                 className="w-full bg-[#111] border border-[#333] p-3 text-white focus:border-white focus:outline-none"
               >
-                <option value="buzos">Buzos</option>
-                <option value="pantalones">Pantalones</option>
-                <option value="calzado">Calzado</option>
-                <option value="accesorios">Accesorios</option>
-                <option value="perfumes">Perfumes</option>
-                <option value="gorras">Gorras</option>
+                {MAIN_CATEGORIES.map(cat => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
               </select>
               
               {SUB_CATEGORIES[newMainCategory] && (
@@ -202,12 +195,9 @@ export default function InventoryManager({ products }: { products: any[] }) {
                 className="bg-[#111] border border-[#333] pl-10 pr-8 py-2 text-sm text-white focus:border-white focus:outline-none appearance-none cursor-pointer transition-colors"
               >
                 <option value="all">Todas las Categorías</option>
-                <option value="buzos">Buzos</option>
-                <option value="pantalones">Pantalones</option>
-                <option value="calzado">Calzado</option>
-                <option value="accesorios">Accesorios</option>
-                <option value="perfumes">Perfumes</option>
-                <option value="gorras">Gorras</option>
+                {MAIN_CATEGORIES.map(cat => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
               </select>
             </div>
           </div>
@@ -307,13 +297,8 @@ function EditProductModal({ product, onClose, router }: { product: any, onClose:
   const [price, setPrice] = useState(product.price);
   
   const [cat, subcat] = product.category.split('-');
-  const [mainCategory, setMainCategory] = useState(cat || 'buzos');
+  const [mainCategory, setMainCategory] = useState(cat || 'remeras');
   const [subCategory, setSubCategory] = useState(subcat || '');
-
-  const SUB_CATEGORIES: Record<string, {id: string, name: string}[]> = {
-    buzos: [{id: 'hoodies', name: 'Hoodies'}, {id: 'cuelloredondo', name: 'Cuello Redondo'}],
-    pantalones: [{id: 'joggers', name: 'Joggers'}, {id: 'jeans', name: 'Jeans'}, {id: 'cargos', name: 'Cargos'}, {id: 'shorts', name: 'Shorts'}],
-  };
   
   // Local state for sizes: we want to track the current sizes and any edits
   const initialSizes = (product.product_sizes || []).map((ps: any) => ({
@@ -450,12 +435,9 @@ function EditProductModal({ product, onClose, router }: { product: any, onClose:
                         value={mainCategory} onChange={e => { setMainCategory(e.target.value); setSubCategory(""); }}
                         className="text-sm text-neutral-500 bg-transparent border-b border-transparent hover:border-[#333] focus:border-white focus:outline-none transition-colors ml-2 cursor-pointer"
                       >
-                        <option value="buzos">Buzos</option>
-                        <option value="pantalones">Pantalones</option>
-                        <option value="calzado">Calzado</option>
-                        <option value="accesorios">Accesorios</option>
-                        <option value="perfumes">Perfumes</option>
-                        <option value="gorras">Gorras</option>
+                        {MAIN_CATEGORIES.map(cat => (
+                          <option key={cat.id} value={cat.id}>{cat.name}</option>
+                        ))}
                       </select>
                       
                       {SUB_CATEGORIES[mainCategory] && (

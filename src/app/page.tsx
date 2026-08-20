@@ -8,6 +8,7 @@ export const revalidate = 0;
 
 export default async function Home() {
   const categories = [
+    { name: "Remeras", image: "/images/buzo-new.png", url: "/catalogo?categoria=remeras" },
     { name: "Buzos", image: "/images/buzo-new.png", url: "/catalogo?categoria=buzos" },
     { name: "Joggers", image: "/images/jogger.png", url: "/catalogo?categoria=pantalones&subcategoria=joggers" },
     { name: "Calzado", image: "/images/calzado.png", url: "/catalogo?categoria=calzado" },

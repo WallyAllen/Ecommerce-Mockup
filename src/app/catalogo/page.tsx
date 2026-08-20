@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { Filter, ChevronDown, X } from "lucide-react";
 import { getProductsByCategory, products as allProducts } from "@/lib/data";
+import { MAIN_CATEGORIES, SUB_CATEGORIES } from "@/lib/categories";
 
 export const dynamic = 'force-dynamic';
 
@@ -153,35 +154,34 @@ function CatalogoContent() {
 
             <div className="mb-6">
               <h3 className="font-montserrat font-black tracking-wider text-lg mb-3 uppercase">Categoría</h3>
-              <div className="space-y-3 text-sm font-semibold text-neutral-400 flex flex-col items-start">
-                <Link replace onClick={() => setShowFilters(false)} href="/catalogo" className={`block hover:text-[#E60000] transition-colors ${!categoryParam ? 'text-[#E60000]' : ''}`}>Todos los productos</Link>
+              <div className="space-y-4 flex flex-col items-start">
+                <Link replace onClick={() => setShowFilters(false)} href="/catalogo" className={`block hover:text-[#E60000] font-bold transition-colors ${!categoryParam ? 'text-[#E60000]' : 'text-neutral-300'}`}>
+                  Todos los productos
+                </Link>
                 
-                <div className="w-full">
-                  <Link replace onClick={() => setShowFilters(false)} href="/catalogo?categoria=buzos" className={`block hover:text-[#E60000] transition-colors ${categoryParam === 'buzos' && !subcategoryParam ? 'text-[#E60000]' : ''}`}>Buzos</Link>
-                  {categoryParam === 'buzos' && (
-                    <div className="ml-4 mt-2 mb-2 space-y-2 flex flex-col border-l border-[#333] pl-3 text-xs">
-                      <Link replace onClick={() => setShowFilters(false)} href="/catalogo?categoria=buzos&subcategoria=hoodies" className={`block hover:text-white transition-colors ${subcategoryParam === 'hoodies' ? 'text-white font-bold' : ''}`}>Hoodies</Link>
-                      <Link replace onClick={() => setShowFilters(false)} href="/catalogo?categoria=buzos&subcategoria=cuelloredondo" className={`block hover:text-white transition-colors ${subcategoryParam === 'cuelloredondo' ? 'text-white font-bold' : ''}`}>Cuello Redondo</Link>
-                    </div>
-                  )}
-                </div>
-
-                <div className="w-full">
-                  <Link replace onClick={() => setShowFilters(false)} href="/catalogo?categoria=pantalones" className={`block hover:text-[#E60000] transition-colors ${categoryParam === 'pantalones' && !subcategoryParam ? 'text-[#E60000]' : ''}`}>Pantalones</Link>
-                  {categoryParam === 'pantalones' && (
-                    <div className="ml-4 mt-2 mb-2 space-y-2 flex flex-col border-l border-[#333] pl-3 text-xs">
-                      <Link replace onClick={() => setShowFilters(false)} href="/catalogo?categoria=pantalones&subcategoria=joggers" className={`block hover:text-white transition-colors ${subcategoryParam === 'joggers' ? 'text-white font-bold' : ''}`}>Joggers</Link>
-                      <Link replace onClick={() => setShowFilters(false)} href="/catalogo?categoria=pantalones&subcategoria=jeans" className={`block hover:text-white transition-colors ${subcategoryParam === 'jeans' ? 'text-white font-bold' : ''}`}>Jeans</Link>
-                      <Link replace onClick={() => setShowFilters(false)} href="/catalogo?categoria=pantalones&subcategoria=cargos" className={`block hover:text-white transition-colors ${subcategoryParam === 'cargos' ? 'text-white font-bold' : ''}`}>Cargos</Link>
-                      <Link replace onClick={() => setShowFilters(false)} href="/catalogo?categoria=pantalones&subcategoria=shorts" className={`block hover:text-white transition-colors ${subcategoryParam === 'shorts' ? 'text-white font-bold' : ''}`}>Shorts</Link>
-                    </div>
-                  )}
-                </div>
-
-                <Link replace onClick={() => setShowFilters(false)} href="/catalogo?categoria=accesorios" className={`block hover:text-[#E60000] transition-colors ${categoryParam === 'accesorios' ? 'text-[#E60000]' : ''}`}>Accesorios</Link>
-                <Link replace onClick={() => setShowFilters(false)} href="/catalogo?categoria=calzado" className={`block hover:text-[#E60000] transition-colors ${categoryParam === 'calzado' ? 'text-[#E60000]' : ''}`}>Calzado</Link>
-                <Link replace onClick={() => setShowFilters(false)} href="/catalogo?categoria=perfumes" className={`block hover:text-[#E60000] transition-colors ${categoryParam === 'perfumes' ? 'text-[#E60000]' : ''}`}>Perfumes</Link>
-                <Link replace onClick={() => setShowFilters(false)} href="/catalogo?categoria=gorras" className={`block hover:text-[#E60000] transition-colors ${categoryParam === 'gorras' ? 'text-[#E60000]' : ''}`}>Gorras</Link>
+                {MAIN_CATEGORIES.map(cat => (
+                  <div key={cat.id} className="w-full">
+                    <Link replace onClick={() => setShowFilters(false)} href={`/catalogo?categoria=${cat.id}`} className={`block hover:text-[#E60000] font-bold transition-colors ${categoryParam === cat.id && !subcategoryParam ? 'text-[#E60000]' : (categoryParam === cat.id ? 'text-white' : 'text-neutral-300')}`}>
+                      {cat.name}
+                    </Link>
+                    
+                    {categoryParam === cat.id && SUB_CATEGORIES[cat.id] && (
+                      <div className="ml-1 mt-2 mb-2 space-y-2.5 flex flex-col border-l-2 border-[#E60000]/30 pl-4 py-1">
+                        {SUB_CATEGORIES[cat.id].map(sub => (
+                          <Link 
+                            key={sub.id} 
+                            replace 
+                            onClick={() => setShowFilters(false)} 
+                            href={`/catalogo?categoria=${cat.id}&subcategoria=${sub.id}`} 
+                            className={`block text-sm transition-all hover:text-white hover:translate-x-1 ${subcategoryParam === sub.id ? 'text-white font-black translate-x-1' : 'text-neutral-500 font-medium'}`}
+                          >
+                            {sub.name}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
             
