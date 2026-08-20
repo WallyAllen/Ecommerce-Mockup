@@ -10,37 +10,37 @@ export const MAIN_CATEGORIES = [
 
 export const SUB_CATEGORIES: Record<string, { id: string, name: string }[]> = {
   remeras: [
-    { id: 'oversize', name: 'Oversize' },
+    { id: 'basket', name: 'Basket' },
+    { id: 'basicas', name: 'Básicas' },
     { id: 'boxyfit', name: 'Boxy Fit' },
     { id: 'futbol', name: 'Fútbol' },
-    { id: 'basket', name: 'Basket' },
-    { id: 'basicas', name: 'Básicas' }
+    { id: 'oversize', name: 'Oversize' }
   ],
   buzos: [
-    { id: 'hoodies', name: 'Hoodies' },
-    { id: 'crewneck', name: 'Cuello Redondo' },
     { id: 'baggy', name: 'Baggys' },
     { id: 'boxyfit', name: 'Boxy Fit' },
-    { id: 'deportivos', name: 'Deportivos' }
+    { id: 'crewneck', name: 'Cuello Redondo' },
+    { id: 'deportivos', name: 'Deportivos' },
+    { id: 'hoodies', name: 'Hoodies' }
   ],
   pantalones: [
-    { id: 'joggers', name: 'Joggers' },
-    { id: 'jeans', name: 'Jeans' },
     { id: 'cargos', name: 'Cargos' },
-    { id: 'shorts', name: 'Shorts' },
-    { id: 'parachute', name: 'Parachute' }
+    { id: 'jeans', name: 'Jeans' },
+    { id: 'joggers', name: 'Joggers' },
+    { id: 'parachute', name: 'Parachute' },
+    { id: 'shorts', name: 'Shorts' }
   ],
   calzado: [
-    { id: 'deportivas', name: 'Deportivas' },
+    { id: 'chanclas', name: 'Chanclas / Slides' },
     { id: 'chunkies', name: 'Chunkies' },
-    { id: 'chanclas', name: 'Chanclas / Slides' }
+    { id: 'deportivas', name: 'Deportivas' }
   ],
   accesorios: [
-    { id: 'relojes', name: 'Relojes' },
-    { id: 'pulseras', name: 'Pulseras' },
     { id: 'cadenas', name: 'Cadenas' },
-    { id: 'termos', name: 'Termos' },
-    { id: 'mochilas', name: 'Mochilas' }
+    { id: 'mochilas', name: 'Mochilas' },
+    { id: 'pulseras', name: 'Pulseras' },
+    { id: 'relojes', name: 'Relojes' },
+    { id: 'termos', name: 'Termos' }
   ],
   perfumes: [
     { id: 'arabes', name: 'Árabes' },

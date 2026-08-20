@@ -80,7 +80,22 @@ function CatalogoContent() {
       availableSizesMap.set(s.name, (availableSizesMap.get(s.name) || false) || s.inStock);
     });
   });
-  const availableSizes = Array.from(availableSizesMap.keys()).sort();
+  const sizeOrder = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL'];
+  const availableSizes = Array.from(availableSizesMap.keys()).sort((a, b) => {
+    const numA = parseFloat(a);
+    const numB = parseFloat(b);
+    
+    if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
+    
+    const idxA = sizeOrder.indexOf(a.toUpperCase());
+    const idxB = sizeOrder.indexOf(b.toUpperCase());
+    
+    if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+    if (idxA !== -1) return -1;
+    if (idxB !== -1) return 1;
+    
+    return a.localeCompare(b);
+  });
 
   // Lógica de visualización
   const ropaSizes = availableSizes.filter(s => isNaN(Number(s)) && s !== 'Único');
