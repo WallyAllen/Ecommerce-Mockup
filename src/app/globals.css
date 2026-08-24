@@ -2,15 +2,15 @@
 
 @theme inline {
   --color-brand-red: #ef4444;
-  --color-brand-black: #171717;
-  --color-background: #171717;
-  --color-foreground: #ffffff;
+  --color-brand-black: #0a0a0a;
+  --color-background: #0a0a0a;
+  --color-foreground: #fafafa;
   --font-montserrat: var(--font-montserrat);
   --font-anton: var(--font-anton);
 }
 
 body {
-  background-color: theme('colors.neutral.900');
+  background-color: theme('colors.neutral.950');
   color: theme('colors.neutral.100');
 }
 

@@ -1,0 +1,68 @@
+﻿{
+  "name": "2. Rescate Carrito Abandonado",
+  "nodes": [
+    {
+      "parameters": { "rule": { "interval": [ { "field": "minutes", "minutesInterval": 15 } ] } },
+      "name": "Schedule (Cada 15 min)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [ 100, 300 ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "checkout_sessions",
+        "returnAll": true,
+        "filters": {
+          "status": "abandoned"
+        }
+      },
+      "name": "Supabase - Buscar Abandonados",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [ 300, 300 ]
+    },
+    {
+      "parameters": {
+        "phoneNumberId": "",
+        "recipientPhoneNumber": "={{$json.customer_phone}}",
+        "text": "=Hola {{$json.customer_name}}, vimos que estabas por llevarte algo pero no completaste el pago. ¿Tuviste algún problema? Escríbeme y te ayudo."
+      },
+      "name": "WhatsApp - Mensaje Rescate",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [ 550, 300 ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "checkout_sessions",
+        "matchColumns": "id",
+        "updateColumns": "status"
+      },
+      "name": "Supabase - Marcar Contactado",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [ 800, 300 ]
+    }
+  ],
+  "connections": {
+    "Schedule (Cada 15 min)": {
+      "main": [
+        [ { "node": "Supabase - Buscar Abandonados", "type": "main", "index": 0 } ]
+      ]
+    },
+    "Supabase - Buscar Abandonados": {
+      "main": [
+        [ { "node": "WhatsApp - Mensaje Rescate", "type": "main", "index": 0 } ]
+      ]
+    },
+    "WhatsApp - Mensaje Rescate": {
+      "main": [
+        [ { "node": "Supabase - Marcar Contactado", "type": "main", "index": 0 } ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {}
+}

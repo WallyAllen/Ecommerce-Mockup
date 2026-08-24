@@ -89,7 +89,7 @@ export async function POST(req: Request) {
       // EVENTO: Reserva/Transferencia Pendiente (Hito 1.4)
       // Disparamos el webhook a n8n de forma asíncrona para que la IA lo contacte por WhatsApp.
       if (process.env.N8N_WEBHOOK_URL) {
-        fetch(process.env.N8N_WEBHOOK_URL, {
+        await fetch(process.env.N8N_WEBHOOK_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

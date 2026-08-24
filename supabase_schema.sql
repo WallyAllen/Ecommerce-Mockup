@@ -58,6 +58,21 @@ CREATE POLICY "Lectura pública de productos" ON products FOR SELECT USING (true
 CREATE POLICY "Lectura pública de talles" ON product_sizes FOR SELECT USING (true);
 -- Órdenes y Order Items solo accesibles desde el server via service_role key o con policies restrictivas.
 
+-- 5. Tabla de Sesiones de Checkout (Para Carrito Abandonado)
+CREATE TABLE checkout_sessions (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  customer_name VARCHAR(100) NOT NULL,
+  customer_email VARCHAR(255) NOT NULL,
+  customer_phone VARCHAR(20) NOT NULL,
+  cart_data JSONB NOT NULL,
+  status VARCHAR(20) NOT NULL DEFAULT 'abandoned', -- 'abandoned', 'completed'
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE checkout_sessions ENABLE ROW LEVEL SECURITY;
+-- Mismo acceso que orders, solo server-side inserción.
+
 -- 5. Data Inicial (Seed) para probar el sistema
 INSERT INTO products (id, name, description, price, category, image_url, is_new)
 VALUES 

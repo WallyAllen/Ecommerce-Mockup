@@ -1,0 +1,87 @@
+﻿{
+  "name": "3. Triage IA (Gmail OAuth2)",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {
+          "labelIds": [
+            "UNREAD"
+          ],
+          "q": "is:unread"
+        }
+      },
+      "name": "Gmail Trigger (OAuth2)",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1,
+      "position": [
+        100,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=PEGA_TU_CLAVE_AQ_AQUI",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\n          \"text\": \"Eres el asistente comercial de Importados Berisso. Un cliente te mandó este correo:\\n\\nAsunto: {{$json.subject}}\\nMensaje: {{$json.snippet}}\\n\\nResponde su duda brevemente de forma profesional y dile que puede comprar en la web.\"\n        }\n      ]\n    }\n  ]\n}",
+        "options": {}
+      },
+      "name": "Google Gemini (HTTP)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        400,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{$node[\"Gmail Trigger (OAuth2)\"].json.from}}",
+        "subject": "=Re: {{$node[\"Gmail Trigger (OAuth2)\"].json.subject}}",
+        "message": "={{$json.candidates[0].content.parts[0].text}}",
+        "appendAttribution": false
+      },
+      "name": "Gmail (Enviar OAuth2)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        700,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Gmail Trigger (OAuth2)": {
+      "main": [
+        [
+          {
+            "node": "Google Gemini (HTTP)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini (HTTP)": {
+      "main": [
+        [
+          {
+            "node": "Gmail (Enviar OAuth2)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {}
+}

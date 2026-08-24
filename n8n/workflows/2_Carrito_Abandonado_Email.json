@@ -1,0 +1,51 @@
+﻿{
+  "name": "2. Rescate Carrito Abandonado (Gmail OAuth2)",
+  "nodes": [
+    {
+      "parameters": { "rule": { "interval": [ { "field": "minutes", "minutesInterval": 15 } ] } },
+      "name": "Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [ 100, 300 ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM checkout_sessions WHERE updated_at < NOW() - INTERVAL '30 minutes' AND email_sent = false;"
+      },
+      "name": "Postgres (Supabase)",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [ 300, 300 ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{$json.email}}",
+        "subject": "¿Tuviste un problema con el pago? (Importados Berisso)",
+        "message": "=Hola {{$json.name}},\n\nVimos que dejaste un carrito armado pero no terminaste el pago.\nSi tuviste problemas con la tarjeta o prefieres pagar por transferencia con descuento, avísanos respondiendo este correo.\n\n¡Te guardamos el stock por unas horas más!",
+        "appendAttribution": false
+      },
+      "name": "Gmail (Enviar OAuth2)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [ 550, 300 ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE checkout_sessions SET email_sent = true WHERE id = {{$node[\"Postgres (Supabase)\"].json.id}};"
+      },
+      "name": "Marcar como Enviado",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [ 800, 300 ]
+    }
+  ],
+  "connections": {
+    "Schedule": { "main": [ [ { "node": "Postgres (Supabase)", "type": "main", "index": 0 } ] ] },
+    "Postgres (Supabase)": { "main": [ [ { "node": "Gmail (Enviar OAuth2)", "type": "main", "index": 0 } ] ] },
+    "Gmail (Enviar OAuth2)": { "main": [ [ { "node": "Marcar como Enviado", "type": "main", "index": 0 } ] ] }
+  },
+  "active": false,
+  "settings": {}
+}

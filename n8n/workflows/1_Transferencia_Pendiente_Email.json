@@ -1,0 +1,29 @@
+﻿{
+  "name": "1. Reserva/Transferencia Pendiente (Gmail OAuth2)",
+  "nodes": [
+    {
+      "parameters": { "path": "berisso", "httpMethod": "POST", "options": {} },
+      "name": "Webhook Checkout",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [ 250, 300 ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{$json.body.customer_email}}",
+        "subject": "Tu pedido en Importados Berisso (Transferencia)",
+        "message": "=Hola {{$json.body.customer_name}}!\n\nVimos que elegiste transferencia para tu pedido.\nTotal: ${{$json.body.total}}.\n\nPor favor, responde este correo con el comprobante adjunto.\nCBU: 00000031238912389\nAlias: IMPORTADOS.BSSO",
+        "appendAttribution": false
+      },
+      "name": "Gmail (Enviar OAuth2)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [ 500, 300 ]
+    }
+  ],
+  "connections": {
+    "Webhook Checkout": { "main": [ [ { "node": "Gmail (Enviar OAuth2)", "type": "main", "index": 0 } ] ] }
+  },
+  "active": false,
+  "settings": {}
+}

@@ -1,0 +1,76 @@
+﻿{
+  "name": "3. Triage IA (Nuevo Lead / Dudas)",
+  "nodes": [
+    {
+      "parameters": { "path": "whatsapp-inbound", "httpMethod": "POST", "options": {} },
+      "name": "Webhook (Meta API)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [ 100, 300 ],
+      "webhookId": "meta-whatsapp-webhook"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.body.entry[0].changes[0].value.messages[0].text.body}}",
+              "operation": "contains",
+              "value2": "Hola, tengo una duda sobre stock y talles."
+            }
+          ]
+        }
+      },
+      "name": "If (Es del Botón Web?)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [ 350, 300 ]
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "model": "gpt-4o-mini",
+        "messages": {
+          "messageValues": [
+            { "role": "system", "content": "Eres el asistente de ventas de Importados Berisso. El cliente acaba de llegar desde la web preguntando por stock. Sé breve, amigable y pregúntale qué modelo busca." },
+            { "role": "user", "content": "={{$json.body.entry[0].changes[0].value.messages[0].text.body}}" }
+          ]
+        }
+      },
+      "name": "OpenAI - Cerebro Triage",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [ 600, 150 ]
+    },
+    {
+      "parameters": {
+        "phoneNumberId": "",
+        "recipientPhoneNumber": "={{$node[\"Webhook (Meta API)\"].json.body.entry[0].changes[0].value.messages[0].from}}",
+        "text": "={{$json.choices[0].message.content}}"
+      },
+      "name": "WhatsApp - Respuesta IA",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [ 850, 150 ]
+    }
+  ],
+  "connections": {
+    "Webhook (Meta API)": {
+      "main": [
+        [ { "node": "If (Es del Botón Web?)", "type": "main", "index": 0 } ]
+      ]
+    },
+    "If (Es del Botón Web?)": {
+      "main": [
+        [ { "node": "OpenAI - Cerebro Triage", "type": "main", "index": 0 } ]
+      ]
+    },
+    "OpenAI - Cerebro Triage": {
+      "main": [
+        [ { "node": "WhatsApp - Respuesta IA", "type": "main", "index": 0 } ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {}
+}
