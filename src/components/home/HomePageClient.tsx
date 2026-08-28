@@ -119,38 +119,40 @@ export default function HomePageClient({ newArrivals }: HomePageClientProps) {
       </section>
 
       {/* Marquee Banner */}
-      <div className="w-full bg-brand-red py-3 overflow-hidden flex whitespace-nowrap border-y border-neutral-800 relative z-20 shadow-2xl">
-        <div className="animate-marquee flex gap-12 text-black font-anton text-2xl uppercase tracking-widest min-w-full">
-          <span>ATENCIÓN IA 24/7</span>
-          <span>•</span>
-          <span>STOCK EN TIEMPO REAL</span>
-          <span>•</span>
-          <span>ENVÍOS EN EL DÍA</span>
-          <span>•</span>
-          <span>PAGOS SEGUROS</span>
-          <span>•</span>
-          <span>ATENCIÓN IA 24/7</span>
-          <span>•</span>
-          <span>STOCK EN TIEMPO REAL</span>
-          <span>•</span>
-          <span>ENVÍOS EN EL DÍA</span>
-          <span>•</span>
-        </div>
-        <div className="animate-marquee flex gap-12 text-black font-anton text-2xl uppercase tracking-widest min-w-full absolute top-3 left-full">
-          <span>ATENCIÓN IA 24/7</span>
-          <span>•</span>
-          <span>STOCK EN TIEMPO REAL</span>
-          <span>•</span>
-          <span>ENVÍOS EN EL DÍA</span>
-          <span>•</span>
-          <span>PAGOS SEGUROS</span>
-          <span>•</span>
-          <span>ATENCIÓN IA 24/7</span>
-          <span>•</span>
-          <span>STOCK EN TIEMPO REAL</span>
-          <span>•</span>
-          <span>ENVÍOS EN EL DÍA</span>
-          <span>•</span>
+      <div className="w-full bg-brand-red py-3 overflow-hidden border-y border-neutral-800 relative z-20 shadow-2xl">
+        <div className="flex w-max animate-marquee">
+          <div className="flex gap-12 pr-12 text-black font-anton text-2xl uppercase tracking-widest">
+            <span>ATENCIÓN IA 24/7</span>
+            <span>•</span>
+            <span>STOCK EN TIEMPO REAL</span>
+            <span>•</span>
+            <span>ENVÍOS EN EL DÍA</span>
+            <span>•</span>
+            <span>PAGOS SEGUROS</span>
+            <span>•</span>
+            <span>ATENCIÓN IA 24/7</span>
+            <span>•</span>
+            <span>STOCK EN TIEMPO REAL</span>
+            <span>•</span>
+            <span>ENVÍOS EN EL DÍA</span>
+            <span>•</span>
+          </div>
+          <div className="flex gap-12 pr-12 text-black font-anton text-2xl uppercase tracking-widest">
+            <span>ATENCIÓN IA 24/7</span>
+            <span>•</span>
+            <span>STOCK EN TIEMPO REAL</span>
+            <span>•</span>
+            <span>ENVÍOS EN EL DÍA</span>
+            <span>•</span>
+            <span>PAGOS SEGUROS</span>
+            <span>•</span>
+            <span>ATENCIÓN IA 24/7</span>
+            <span>•</span>
+            <span>STOCK EN TIEMPO REAL</span>
+            <span>•</span>
+            <span>ENVÍOS EN EL DÍA</span>
+            <span>•</span>
+          </div>
         </div>
       </div>
 
