@@ -257,12 +257,12 @@ function CatalogoContent() {
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-              {filteredProducts.map((product) => (
-                <Link href={`/producto/${product.id}`} key={product.id} className="group flex flex-col gap-3 relative">
+              {filteredProducts.map((product, idx) => (
+                <Link href={`/producto/${product.id}`} key={product.id} className="group flex flex-col gap-3 relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E60000]">
                   <div className="relative aspect-[4/5] bg-[#0a0a0a] rounded-none overflow-hidden border border-[#333] hover:border-[#666] transition-colors">
                     {!product.sizes.some((s: Size) => s.inStock) && (
                       <div className="absolute inset-0 bg-black/80 z-20 flex items-center justify-center backdrop-blur-sm">
-                        <div className="bg-[#E60000] text-white font-montserrat font-black uppercase px-6 py-2 border-y-2 border-[#E60000] tracking-widest text-lg rotate-12">
+                        <div className="bg-[#E60000] text-white font-montserrat font-black uppercase px-6 py-2 border-y-2 border-[#E60000] tracking-widest text-lg rotate-12 shadow-2xl shadow-red-900/50">
                           Agotado
                         </div>
                       </div>
@@ -272,12 +272,20 @@ function CatalogoContent() {
                       alt={product.name} 
                       fill
                       sizes="(max-width: 768px) 50vw, 33vw"
-                      className={`object-cover transition-transform duration-700 ${product.sizes.some((s: Size) => s.inStock) ? 'group-hover:scale-105' : 'grayscale opacity-50'}`} 
+                      className={`object-cover transition-transform duration-700 ${product.sizes.some((s: Size) => s.inStock) ? 'group-hover:scale-110' : 'grayscale opacity-50'}`} 
                     />
+                    {/* Hover Overlay */}
+                    {product.sizes.some((s: Size) => s.inStock) && (
+                      <div className="absolute inset-0 bg-brand-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-sm z-10 pointer-events-none">
+                        <span className="border border-white text-white font-montserrat font-bold text-sm tracking-widest uppercase py-3 px-6 shadow-xl">
+                          Ver Detalles
+                        </span>
+                      </div>
+                    )}
                   </div>
                   <div className={!product.sizes.some((s: Size) => s.inStock) ? 'opacity-50' : ''}>
                     <h3 className="font-montserrat font-bold text-sm md:text-base text-neutral-400 line-clamp-2 leading-tight mb-1 group-hover:text-white transition-colors uppercase">{product.name}</h3>
-                    <p className="font-montserrat font-black text-xl text-white tracking-wider">${product.price.toLocaleString('es-AR')}</p>
+                    <p className="font-anton text-2xl text-white tracking-wider">${product.price.toLocaleString('es-AR')}</p>
                   </div>
                 </Link>
               ))}
