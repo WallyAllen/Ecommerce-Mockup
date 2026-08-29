@@ -94,13 +94,13 @@ export default function HomePageClient({ newArrivals }: HomePageClientProps) {
               <div className="bg-neutral-900/50 p-2 rounded-full border border-neutral-800 backdrop-blur-sm">
                 <Zap className="w-4 h-4 text-brand-red" />
               </div>
-              <span className="font-montserrat text-xs font-bold uppercase tracking-wider">Atención IA Instantánea</span>
+              <span className="font-montserrat text-xs font-bold uppercase tracking-wider">Atención Instantánea</span>
             </div>
             <div className="flex items-center gap-3 text-neutral-300">
               <div className="bg-neutral-900/50 p-2 rounded-full border border-neutral-800 backdrop-blur-sm">
                 <Truck className="w-4 h-4 text-brand-red" />
               </div>
-              <span className="font-montserrat text-xs font-bold uppercase tracking-wider">Envíos en el día</span>
+              <span className="font-montserrat text-xs font-bold uppercase tracking-wider">Envíos jueves y sábados</span>
             </div>
             <div className="hidden md:flex items-center gap-3 text-neutral-300">
               <div className="bg-neutral-900/50 p-2 rounded-full border border-neutral-800 backdrop-blur-sm">
@@ -122,35 +122,35 @@ export default function HomePageClient({ newArrivals }: HomePageClientProps) {
       <div className="w-full bg-brand-red py-3 overflow-hidden border-y border-neutral-800 relative z-20 shadow-2xl">
         <div className="flex w-max animate-marquee">
           <div className="flex gap-12 pr-12 text-black font-anton text-2xl uppercase tracking-widest">
-            <span>ATENCIÓN IA 24/7</span>
+            <span>ATENCIÓN 24/7</span>
             <span>•</span>
-            <span>STOCK EN TIEMPO REAL</span>
+            <span>RESERVAS CON O SIN SEÑA</span>
             <span>•</span>
-            <span>ENVÍOS EN EL DÍA</span>
+            <span>ENVÍOS JUEVES Y SÁBADOS</span>
             <span>•</span>
             <span>PAGOS SEGUROS</span>
             <span>•</span>
-            <span>ATENCIÓN IA 24/7</span>
+            <span>ATENCIÓN 24/7</span>
             <span>•</span>
-            <span>STOCK EN TIEMPO REAL</span>
+            <span>RESERVAS CON O SIN SEÑA</span>
             <span>•</span>
-            <span>ENVÍOS EN EL DÍA</span>
+            <span>ENVÍOS JUEVES Y SÁBADOS</span>
             <span>•</span>
           </div>
           <div className="flex gap-12 pr-12 text-black font-anton text-2xl uppercase tracking-widest">
-            <span>ATENCIÓN IA 24/7</span>
+            <span>ATENCIÓN 24/7</span>
             <span>•</span>
-            <span>STOCK EN TIEMPO REAL</span>
+            <span>RESERVAS CON O SIN SEÑA</span>
             <span>•</span>
-            <span>ENVÍOS EN EL DÍA</span>
+            <span>ENVÍOS JUEVES Y SÁBADOS</span>
             <span>•</span>
             <span>PAGOS SEGUROS</span>
             <span>•</span>
-            <span>ATENCIÓN IA 24/7</span>
+            <span>ATENCIÓN 24/7</span>
             <span>•</span>
-            <span>STOCK EN TIEMPO REAL</span>
+            <span>RESERVAS CON O SIN SEÑA</span>
             <span>•</span>
-            <span>ENVÍOS EN EL DÍA</span>
+            <span>ENVÍOS JUEVES Y SÁBADOS</span>
             <span>•</span>
           </div>
         </div>
