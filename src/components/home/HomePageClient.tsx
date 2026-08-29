@@ -128,7 +128,7 @@ export default function HomePageClient({ newArrivals }: HomePageClientProps) {
             <span>•</span>
             <span>ENVÍOS JUEVES Y SÁBADOS</span>
             <span>•</span>
-            <span>PAGOS SEGUROS</span>
+            <span>1, 3 Y 6 CUOTAS SIN INTERÉS</span>
             <span>•</span>
             <span>ATENCIÓN 24/7</span>
             <span>•</span>
@@ -144,7 +144,7 @@ export default function HomePageClient({ newArrivals }: HomePageClientProps) {
             <span>•</span>
             <span>ENVÍOS JUEVES Y SÁBADOS</span>
             <span>•</span>
-            <span>PAGOS SEGUROS</span>
+            <span>1, 3 Y 6 CUOTAS SIN INTERÉS</span>
             <span>•</span>
             <span>ATENCIÓN 24/7</span>
             <span>•</span>

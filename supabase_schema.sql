@@ -31,11 +31,13 @@ CREATE TABLE orders (
   payment_method VARCHAR(20) NOT NULL, -- 'tarjeta', 'efectivo'
   status VARCHAR(20) NOT NULL DEFAULT 'pending', -- 'pending', 'paid', 'cancelled', 'shipped'
   total NUMERIC(10, 2) NOT NULL,
+  deposit_amount NUMERIC(10, 2) DEFAULT 0,
   mercadopago_id VARCHAR(100),
   mercadopago_preference_id VARCHAR(100),
   webhook_abandonment_sent BOOLEAN DEFAULT false,
   webhook_transfer_sent BOOLEAN DEFAULT false,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  expires_at TIMESTAMP WITH TIME ZONE
 );
 
 -- 4. Tabla de Ítems de Órdenes (Order Items)

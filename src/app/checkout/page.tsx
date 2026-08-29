@@ -204,8 +204,8 @@ export default function Checkout() {
                 className={`p-5 min-h-[48px] border-2 text-left flex flex-col gap-3 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white ${paymentMethod === "efectivo" ? 'border-white bg-neutral-800' : 'border-neutral-800 bg-transparent hover:border-neutral-600'}`}
               >
                 <Banknote className="w-6 h-6 text-white" />
-                <span className="font-montserrat font-black text-sm uppercase tracking-wider">Transferencia / Cash</span>
-                <span className="text-xs text-neutral-400 font-semibold leading-relaxed">Coordinar pago por WhatsApp.</span>
+                <span className="font-montserrat font-black text-sm uppercase tracking-wider">Reservar (Transf / Efectivo)</span>
+                <span className="text-xs text-neutral-400 font-semibold leading-relaxed">Reserva sin seña por 24hs o con seña por 10 días. Coordiná por WhatsApp.</span>
               </button>
             </div>
           </div>
