@@ -30,9 +30,9 @@ export default function HomePageClient({ newArrivals }: HomePageClientProps) {
 
   const categories = [
     { name: "Buzos", image: "/images/buzo-new.png", url: "/catalogo?categoria=buzos", span: "col-span-1 md:col-span-2 row-span-2" },
-    { name: "Remeras", image: "/images/buzo-new.png", url: "/catalogo?categoria=remeras", span: "col-span-1 md:col-span-1 row-span-1" },
-    { name: "Calzado", image: "/images/calzado.png", url: "/catalogo?categoria=calzado", span: "col-span-1 md:col-span-1 row-span-1" },
-    { name: "Joggers", image: "/images/jogger.png", url: "/catalogo?categoria=pantalones&subcategoria=joggers", span: "col-span-1 md:col-span-2 row-span-1" },
+    { name: "Gorras", image: "/images/gorra-new.png", url: "/catalogo?categoria=gorras", span: "col-span-1 md:col-span-1 row-span-1" },
+    { name: "Joggers", image: "/images/jogger.png", url: "/catalogo?categoria=pantalones&subcategoria=joggers", span: "col-span-1 md:col-span-1 row-span-1" },
+    { name: "Calzado", image: "/images/calzado.png", url: "/catalogo?categoria=calzado", span: "col-span-1 md:col-span-2 row-span-1" },
   ];
 
   return (
