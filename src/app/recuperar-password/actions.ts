@@ -8,7 +8,7 @@ export async function resetPassword(formData: FormData) {
   const supabase = await createClient()
   const email = formData.get('email') as string
   
-  const origin = process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'
+  const origin = (await headers()).get('origin') || process.env.NEXT_PUBLIC_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
   
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${origin}/auth/callback?next=/actualizar-password`,

@@ -85,6 +85,8 @@ type SecureCartItem = CartItemReq & { name: string; price: number };
 
     const order = { id: orderResponse.order_id };
 
+    const origin = req.headers.get('origin') || process.env.NEXT_PUBLIC_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+
     // MercadoPago Preference
     if (paymentMethod === 'tarjeta') {
       const preference = new Preference(client);
@@ -98,9 +100,9 @@ type SecureCartItem = CartItemReq & { name: string; price: number };
             currency_id: 'ARS',
           })),
           back_urls: {
-            success: `${process.env.NEXT_PUBLIC_URL}/checkout/success?order=${order.id}`,
-            failure: `${process.env.NEXT_PUBLIC_URL}/checkout/failure`,
-            pending: `${process.env.NEXT_PUBLIC_URL}/checkout/pending`,
+            success: `${origin}/checkout/success?order=${order.id}`,
+            failure: `${origin}/checkout/failure`,
+            pending: `${origin}/checkout/pending`,
           },
           auto_return: 'approved',
           external_reference: order.id,
