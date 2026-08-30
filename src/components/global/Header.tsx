@@ -15,7 +15,7 @@ export default function Header() {
           <img 
             src="/images/logo-transparent.png" 
             alt="Importados Berisso Logo" 
-            className="h-12 md:h-16 w-auto object-contain scale-150 md:scale-[2] origin-left" 
+            className="h-12 md:h-16 w-auto object-contain" 
           />
         </Link>
 
