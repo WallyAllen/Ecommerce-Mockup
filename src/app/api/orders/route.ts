@@ -85,7 +85,9 @@ type SecureCartItem = CartItemReq & { name: string; price: number };
 
     const order = { id: orderResponse.order_id };
 
-    const origin = req.headers.get('origin') || process.env.NEXT_PUBLIC_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+    const host = req.headers.get('x-forwarded-host') || req.headers.get('host');
+    const protocol = req.headers.get('x-forwarded-proto') || (host?.includes('localhost') ? 'http' : 'https');
+    const origin = host ? `${protocol}://${host}` : 'http://localhost:3000';
 
     // MercadoPago Preference
     if (paymentMethod === 'tarjeta') {
