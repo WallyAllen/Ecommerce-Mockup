@@ -6,6 +6,7 @@ import Footer from "@/components/global/Footer";
 import MobileMenu from "@/components/global/MobileMenu";
 import WhatsAppButton from "@/components/global/WhatsAppButton";
 import { CartProvider } from "@/context/CartContext";
+import { Toaster } from "sonner";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const montserrat = Montserrat({ subsets: ["latin"], variable: "--font-montserrat" });
@@ -32,6 +33,7 @@ export default function RootLayout({
           <Footer />
           <WhatsAppButton />
           <MobileMenu />
+          <Toaster theme="dark" position="bottom-left" />
         </CartProvider>
       </body>
     </html>

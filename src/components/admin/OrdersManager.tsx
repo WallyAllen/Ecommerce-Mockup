@@ -6,7 +6,31 @@ import { createClient } from "@/utils/supabase/client";
 import { updateOrderStatus } from "@/app/admin/actions";
 import { useRouter } from "next/navigation";
 
-export default function OrdersManager({ initialOrders }: { initialOrders: any[] }) {
+import { toast } from "sonner";
+
+interface OrderItem {
+  id: string;
+  quantity: number;
+  size: string;
+  products?: {
+    name: string;
+  };
+}
+
+interface Order {
+  id: string;
+  created_at: string;
+  status: string;
+  customer_name: string;
+  customer_email: string;
+  customer_phone: string;
+  total: number;
+  payment_method: string;
+  delivery_method: string;
+  order_items: OrderItem[];
+}
+
+export default function OrdersManager({ initialOrders }: { initialOrders: Order[] }) {
   const [orders, setOrders] = useState(initialOrders);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusTab, setStatusTab] = useState<"pending" | "paid" | "cancelled">("pending");
@@ -75,10 +99,11 @@ export default function OrdersManager({ initialOrders }: { initialOrders: any[] 
     
     try {
       await updateOrderStatus(formData);
+      toast.success(newStatus === 'paid' ? 'Orden aprobada' : 'Orden cancelada');
     } catch (e) {
       // Revert if error
       setOrders(initialOrders);
-      alert("Error al actualizar la orden.");
+      toast.error("Error al actualizar la orden.");
     }
   };
 
@@ -163,9 +188,9 @@ export default function OrdersManager({ initialOrders }: { initialOrders: any[] 
                   </td>
                   <td className="p-4">
                     <div className="flex flex-col gap-1 max-h-24 overflow-y-auto pr-2">
-                      {order.order_items?.map((item: any) => (
+                      {order.order_items?.map((item) => (
                         <div key={item.id} className="text-xs text-neutral-400 flex items-center justify-between border-b border-[#333] last:border-0 pb-1 last:pb-0">
-                          <span className="truncate w-32">{item.product_name}</span>
+                          <span className="truncate w-32">{item.products?.name || 'Producto Desconocido'}</span>
                           <span className="font-bold text-white ml-2">x{item.quantity} (Talle: {item.size})</span>
                         </div>
                       ))}
@@ -183,9 +208,17 @@ export default function OrdersManager({ initialOrders }: { initialOrders: any[] 
                         </button>
                         <button 
                           onClick={() => {
-                            if(confirm("¿Estás seguro de cancelar esta orden? El stock será devuelto al inventario.")) {
-                              handleUpdateStatus(order.id, 'cancelled');
-                            }
+                            toast('¿Cancelar esta orden?', {
+                              description: 'El stock será devuelto al inventario.',
+                              action: {
+                                label: 'Sí, cancelar',
+                                onClick: () => handleUpdateStatus(order.id, 'cancelled')
+                              },
+                              cancel: {
+                                label: 'No',
+                                onClick: () => {}
+                              }
+                            });
                           }}
                           title="Desaprobar Orden / Cancelar" 
                           className="p-2 border border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition-colors"

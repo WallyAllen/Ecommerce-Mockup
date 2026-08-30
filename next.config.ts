@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import "./src/env";
 
 const nextConfig: NextConfig = {
   // Allow mobile testing on local network

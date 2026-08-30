@@ -8,11 +8,8 @@ export async function resetPassword(formData: FormData) {
   const supabase = await createClient()
   const email = formData.get('email') as string
   
-  const headersList = await headers()
-  const host = headersList.get('host')
-  const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http'
-  const origin = `${protocol}://${host}`
-
+  const origin = process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'
+  
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${origin}/auth/callback?next=/actualizar-password`,
   })

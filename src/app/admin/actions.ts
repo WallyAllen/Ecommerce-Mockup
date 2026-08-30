@@ -14,7 +14,10 @@ export async function updateOrderStatus(formData: FormData) {
 
   const supabaseAdmin = createAdminClient(process.env.NEXT_PUBLIC_SUPABASE_URL || '', process.env.SUPABASE_SERVICE_ROLE_KEY || '')
 
-  if (status === 'cancelled') {
+  const { data: currentOrder } = await supabaseAdmin.from('orders').select('status').eq('id', orderId).single()
+  if (!currentOrder) throw new Error('Order not found')
+
+  if (status === 'cancelled' && currentOrder.status !== 'cancelled') {
     const { data: orderItems } = await supabaseAdmin.from('order_items').select('product_id, size, quantity').eq('order_id', orderId)
     if (orderItems) {
       for (const item of orderItems) {

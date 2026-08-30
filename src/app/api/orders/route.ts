@@ -10,62 +10,87 @@ const supabaseAdmin = createClient(
 // MercadoPago Config
 const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN || '' });
 
+interface CartItemReq {
+  id: string;
+  size: string;
+  quantity: number;
+}
+
+interface OrderRequest {
+  cart: CartItemReq[];
+  deliveryMethod: string;
+  paymentMethod: string;
+  customerInfo: {
+    name: string;
+    email: string;
+    phone: string;
+  };
+}
+
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
+    const body = await req.json() as OrderRequest;
     const { cart, deliveryMethod, paymentMethod, customerInfo } = body;
 
-    // Calcular el total
-    const total = cart.reduce((acc: number, item: any) => acc + (item.price * item.quantity), 0);
-    
-    // Insertar Orden
-    const { data: order, error: orderError } = await supabaseAdmin.from('orders').insert({
-      customer_name: customerInfo?.name || 'Cliente',
-      customer_email: customerInfo?.email || 'email@placeholder.com',
-      customer_phone: customerInfo?.phone || '000',
-      delivery_method: deliveryMethod,
-      payment_method: paymentMethod,
-      total: total,
-      status: 'pending'
-    }).select('id').single();
+type SecureCartItem = CartItemReq & { name: string; price: number };
 
-    if (orderError || !order) {
-      throw new Error(orderError?.message || 'Error al crear la orden.');
+    // Obtener precios reales de la BD para prevenir fraude
+    const productIds = cart.map((item) => item.id);
+    const { data: realProducts, error: productsError } = await supabaseAdmin
+      .from('products')
+      .select('id, name, price')
+      .in('id', productIds);
+
+    if (productsError || !realProducts) {
+      throw new Error('Error al validar los productos en la base de datos.');
     }
 
-    // Insertar Items y Descontar Stock
-    for (const item of cart) {
-      await supabaseAdmin.from('order_items').insert({
-        order_id: order.id,
+    // Construir carrito seguro
+    const secureCart: SecureCartItem[] = cart.map((item) => {
+      const realProduct = realProducts.find(p => p.id === item.id);
+      if (!realProduct) throw new Error(`Producto inválido: ${item.id}`);
+      return {
+        ...item,
+        name: realProduct.name,
+        price: realProduct.price
+      };
+    });
+
+    // Calcular el total real
+    const total = secureCart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+    
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+
+    // Insertar Orden, Items y Descontar Stock de forma Atómica
+    const { data: orderResponse, error: rpcError } = await supabaseAdmin.rpc('create_order_atomic', {
+      p_customer_name: customerInfo?.name || 'Cliente',
+      p_customer_email: customerInfo?.email || 'email@placeholder.com',
+      p_customer_phone: customerInfo?.phone || '000',
+      p_delivery_method: deliveryMethod,
+      p_payment_method: paymentMethod,
+      p_total: total,
+      p_status: 'pending',
+      p_expires_at: expiresAt,
+      p_items: secureCart.map((item) => ({
         product_id: item.id,
         size: item.size,
         quantity: item.quantity,
-        price_at_purchase: item.price
-      });
+        price: item.price
+      }))
+    });
 
-      // Leer stock actual
-      const { data: sizeData } = await supabaseAdmin
-        .from('product_sizes')
-        .select('stock_quantity')
-        .eq('product_id', item.id)
-        .eq('size', item.size)
-        .single();
-        
-      if (sizeData) {
-        await supabaseAdmin
-          .from('product_sizes')
-          .update({ stock_quantity: Math.max(0, sizeData.stock_quantity - item.quantity) })
-          .eq('product_id', item.id)
-          .eq('size', item.size);
-      }
+    if (rpcError || !orderResponse) {
+      throw new Error(rpcError?.message || 'Error al procesar la orden o stock insuficiente.');
     }
+
+    const order = { id: orderResponse.order_id };
 
     // MercadoPago Preference
     if (paymentMethod === 'tarjeta') {
       const preference = new Preference(client);
       const prefData = await preference.create({
         body: {
-          items: cart.map((item: any) => ({
+          items: secureCart.map((item) => ({
             id: item.id,
             title: item.name,
             quantity: item.quantity,
@@ -99,7 +124,7 @@ export async function POST(req: Request) {
             customer_email: customerInfo?.email || '',
             customer_phone: customerInfo?.phone || '',
             total: total,
-            items: cart.map((i: any) => `${i.quantity}x ${i.name} (Talle: ${i.size})`).join(', ')
+            items: secureCart.map((i) => `${i.quantity}x ${i.name} (Talle: ${i.size})`).join(', ')
           })
         }).catch(err => console.error("Error disparando webhook a n8n:", err));
       }

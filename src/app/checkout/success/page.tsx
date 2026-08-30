@@ -31,15 +31,15 @@ function SuccessContent() {
         <div className="bg-[#111] p-6 border border-[#333] mb-8 w-full">
           <h2 className="font-montserrat font-black text-xl uppercase mb-3 text-[#E60000]">Paso Final</h2>
           <p className="text-neutral-300 font-semibold mb-6">
-            Elegiste abonar en efectivo o transferencia. Haz clic abajo para enviarnos tu comprobante o coordinar el pago por WhatsApp. Tu stock está reservado por 24hs.
+            Elegiste abonar en efectivo o transferencia. Haz clic abajo para enviarnos tu comprobante o coordinar el pago por Correo. Tu stock está reservado por 24hs.
           </p>
           <a 
-            href={`https://wa.me/5491100000000?text=Hola! Acabo de hacer el pedido ${orderId}. Quiero coordinar el pago.`}
+            href={`mailto:fjborrazas3@gmail.com?subject=Pago%20de%20pedido%20${orderId}&body=Hola!%20Acabo%20de%20hacer%20el%20pedido%20${orderId}.%20Quiero%20coordinar%20el%20pago.`}
             target="_blank"
             rel="noreferrer"
             className="block w-full bg-[#E60000] text-white font-black py-4 uppercase tracking-widest hover:bg-white hover:text-black transition-colors"
           >
-            Enviar WhatsApp
+            Enviar Comprobante
           </a>
         </div>
       ) : (

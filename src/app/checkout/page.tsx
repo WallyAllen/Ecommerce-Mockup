@@ -9,16 +9,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 export default function Checkout() {
-  const { cart, removeFromCart, total } = useCart();
+  const { cart, removeFromCart, updateQuantity, total, isLoaded } = useCart();
   const [deliveryMethod, setDeliveryMethod] = useState<"retiro" | "envio" | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<"tarjeta" | "efectivo" | null>(null);
-  const [customerInfo, setCustomerInfo] = useState({ name: '', email: '', phone: '' });
+  const [customerInfo, setCustomerInfo] = useState({ name: '', email: '', phone: '', address: '' });
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (cart.length === 0) return;
+    if (!isLoaded || cart.length === 0) return;
     const timeoutId = setTimeout(() => {
       if (customerInfo.name && customerInfo.email && customerInfo.phone.length >= 8 && !sessionId) {
         fetch('/api/checkout-sessions', {
@@ -34,13 +34,17 @@ export default function Checkout() {
       }
     }, 2000); 
     return () => clearTimeout(timeoutId);
-  }, [customerInfo, cart, sessionId]);
+  }, [customerInfo, cart, sessionId, isLoaded]);
 
   const handleCheckoutSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setError(null);
     if (!customerInfo.name || !customerInfo.email || !customerInfo.phone) {
       setError("Por favor, completa tus datos personales.");
+      return;
+    }
+    if (deliveryMethod === 'envio' && !customerInfo.address.trim()) {
+      setError("Por favor, ingresa tu dirección completa para el envío.");
       return;
     }
     if (!deliveryMethod || !paymentMethod) {
@@ -74,6 +78,14 @@ export default function Checkout() {
       setIsProcessing(false);
     }
   };
+
+  if (!isLoaded) {
+    return (
+      <div className="container mx-auto px-4 py-20 flex flex-col items-center text-center">
+        <h1 className="font-montserrat font-black text-3xl uppercase tracking-wider mb-4 text-neutral-500">Cargando carrito...</h1>
+      </div>
+    );
+  }
 
   if (cart.length === 0) {
     return (
@@ -138,7 +150,7 @@ export default function Checkout() {
                     id="phone"
                     name="phone"
                     type="tel" 
-                    placeholder="Ej: 1123456789" 
+                    placeholder="Ej: 1123456789 sin el 15" 
                     autoComplete="tel"
                     value={customerInfo.phone} 
                     onChange={e => setCustomerInfo({...customerInfo, phone: e.target.value})}
@@ -154,7 +166,7 @@ export default function Checkout() {
               <span className="w-8 h-8 flex items-center justify-center text-sm border border-neutral-800">2</span> 
               Entrega
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <button 
                 type="button"
                 aria-pressed={deliveryMethod === "retiro"}
@@ -177,6 +189,21 @@ export default function Checkout() {
                 <span className="text-xs text-neutral-400 font-semibold leading-relaxed">Berisso, Ensenada, La Plata. Costo a convenir.</span>
               </button>
             </div>
+            
+            {deliveryMethod === 'envio' && (
+              <div className="space-y-2 pt-4 border-t border-neutral-800">
+                <label htmlFor="address" className="text-sm font-bold text-neutral-400">Dirección completa (Calle, Altura, Piso, Depto, Localidad)</label>
+                <Input 
+                  id="address"
+                  name="address"
+                  type="text" 
+                  placeholder="Ej: Montevideo 1234, Depto 2, Berisso" 
+                  autoComplete="street-address"
+                  value={customerInfo.address} 
+                  onChange={e => setCustomerInfo({...customerInfo, address: e.target.value})}
+                />
+              </div>
+            )}
           </div>
 
           {/* Paso 3 */}
@@ -226,13 +253,20 @@ export default function Checkout() {
                   <div className="flex-1 flex flex-col justify-between">
                     <div>
                       <h4 className="text-sm font-bold leading-tight uppercase line-clamp-2">{item.name}</h4>
-                      <span className="text-xs font-black text-neutral-400 uppercase tracking-widest mt-1 block">Talle: {item.size} x{item.quantity}</span>
+                      <span className="text-xs font-black text-neutral-400 uppercase tracking-widest mt-1 block">Talle: {item.size}</span>
                     </div>
                     <div className="flex justify-between items-end mt-2">
                       <p className="text-base font-black">${(item.price * item.quantity).toLocaleString('es-AR')}</p>
-                      <button type="button" aria-label="Eliminar del carrito" onClick={() => removeFromCart(item.id, item.size)} className="text-neutral-500 hover:text-[#E60000] p-1 min-h-[32px] min-w-[32px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center border border-neutral-800 bg-black">
+                          <button type="button" onClick={() => updateQuantity(item.id, item.size, -1)} className="px-2 py-1 hover:text-white text-neutral-500 font-bold">-</button>
+                          <span className="text-xs font-bold px-2">{item.quantity}</span>
+                          <button type="button" onClick={() => updateQuantity(item.id, item.size, 1)} className="px-2 py-1 hover:text-white text-neutral-500 font-bold">+</button>
+                        </div>
+                        <button type="button" aria-label="Eliminar del carrito" onClick={() => removeFromCart(item.id, item.size)} className="text-neutral-500 hover:text-[#E60000] p-1 ml-1 min-h-[32px] min-w-[32px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -246,7 +280,7 @@ export default function Checkout() {
 
             <Button 
               type="submit"
-              disabled={isProcessing || !customerInfo.name || !customerInfo.email || !customerInfo.phone || !deliveryMethod || !paymentMethod}
+              disabled={isProcessing}
               className="w-full uppercase tracking-widest"
               variant="default"
             >

@@ -14,7 +14,18 @@ export type Product = {
   sizes: { name: string; inStock: boolean }[];
 };
 
-function mapProductRecord(p: any): Product {
+interface DBProduct {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  image_url: string;
+  is_new: boolean;
+  product_sizes?: { size: string; stock_quantity: number }[];
+}
+
+function mapProductRecord(p: DBProduct): Product {
   const [cat, subcat] = p.category.split('-');
   return {
     id: p.id,
@@ -27,7 +38,7 @@ function mapProductRecord(p: any): Product {
     image: p.image_url,
     isNew: p.is_new,
     images: [p.image_url],
-    sizes: p.product_sizes ? p.product_sizes.map((s: any) => ({
+    sizes: p.product_sizes ? p.product_sizes.map((s) => ({
       name: s.size,
       inStock: s.stock_quantity > 0
     })) : []
@@ -81,4 +92,3 @@ export async function getNewArrivals(): Promise<Product[]> {
   return data.map(mapProductRecord);
 }
 
-export const products: any[] = []; // Deprecated, kept just in case

@@ -29,7 +29,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
   if (tab === 'orders') {
     const { data } = await supabaseAdmin
       .from('orders')
-      .select(`*, order_items (*)`)
+      .select(`*, order_items (*, products(name))`)
       .order('created_at', { ascending: false });
     orders = data || [];
   } else {
