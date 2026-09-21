@@ -100,7 +100,7 @@ export default function HomePageClient({ newArrivals }: HomePageClientProps) {
               <div className="bg-neutral-900/50 p-2 rounded-full border border-neutral-800 backdrop-blur-sm">
                 <Truck className="w-4 h-4 text-brand-red" />
               </div>
-              <span className="font-montserrat text-xs font-bold uppercase tracking-wider">Envíos jueves y sábados</span>
+              <span className="font-montserrat text-xs font-bold uppercase tracking-wider">Envíos a coordinar</span>
             </div>
             <div className="hidden md:flex items-center gap-3 text-neutral-300">
               <div className="bg-neutral-900/50 p-2 rounded-full border border-neutral-800 backdrop-blur-sm">
@@ -112,7 +112,7 @@ export default function HomePageClient({ newArrivals }: HomePageClientProps) {
               <div className="bg-neutral-900/50 p-2 rounded-full border border-neutral-800 backdrop-blur-sm">
                 <MapPin className="w-4 h-4 text-brand-red" />
               </div>
-              <span className="font-montserrat text-xs font-bold uppercase tracking-wider">Retiro por Berisso</span>
+              <span className="font-montserrat text-xs font-bold uppercase tracking-wider">Retiros a coordinar</span>
             </div>
           </div>
         </motion.div>
@@ -124,33 +124,33 @@ export default function HomePageClient({ newArrivals }: HomePageClientProps) {
           <div className="flex gap-12 pr-12 text-black font-anton text-2xl uppercase tracking-widest">
             <span>ATENCIÓN 24/7</span>
             <span>•</span>
-            <span>RESERVAS CON O SIN SEÑA</span>
+            <span>RESERVAS A CONFIRMAR</span>
             <span>•</span>
-            <span>ENVÍOS JUEVES Y SÁBADOS</span>
+            <span>ENVÍOS A COORDINAR</span>
             <span>•</span>
-            <span>1, 3 Y 6 CUOTAS SIN INTERÉS</span>
+            <span>MEDIOS DE PAGO A CONFIRMAR</span>
             <span>•</span>
             <span>ATENCIÓN 24/7</span>
             <span>•</span>
-            <span>RESERVAS CON O SIN SEÑA</span>
+            <span>RESERVAS A CONFIRMAR</span>
             <span>•</span>
-            <span>ENVÍOS JUEVES Y SÁBADOS</span>
+            <span>ENVÍOS A COORDINAR</span>
             <span>•</span>
           </div>
           <div className="flex gap-12 pr-12 text-black font-anton text-2xl uppercase tracking-widest">
             <span>ATENCIÓN 24/7</span>
             <span>•</span>
-            <span>RESERVAS CON O SIN SEÑA</span>
+            <span>RESERVAS A CONFIRMAR</span>
             <span>•</span>
-            <span>ENVÍOS JUEVES Y SÁBADOS</span>
+            <span>ENVÍOS A COORDINAR</span>
             <span>•</span>
-            <span>1, 3 Y 6 CUOTAS SIN INTERÉS</span>
+            <span>MEDIOS DE PAGO A CONFIRMAR</span>
             <span>•</span>
             <span>ATENCIÓN 24/7</span>
             <span>•</span>
-            <span>RESERVAS CON O SIN SEÑA</span>
+            <span>RESERVAS A CONFIRMAR</span>
             <span>•</span>
-            <span>ENVÍOS JUEVES Y SÁBADOS</span>
+            <span>ENVÍOS A COORDINAR</span>
             <span>•</span>
           </div>
         </div>

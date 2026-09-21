@@ -175,7 +175,7 @@ export default function Checkout() {
               >
                 <MapPin className="w-6 h-6 text-white" />
                 <span className="font-montserrat font-black text-sm uppercase tracking-wider">Retiro por Local</span>
-                <span className="text-xs text-neutral-400 font-semibold leading-relaxed">Jueves o Sábados - 16 e/ 166 y 167 (Berisso)</span>
+                <span className="text-xs text-neutral-400 font-semibold leading-relaxed">[COMPLETAR: días, horarios y punto de retiro]</span>
               </button>
               
               <button 
@@ -186,7 +186,7 @@ export default function Checkout() {
               >
                 <Truck className="w-6 h-6 text-white" />
                 <span className="font-montserrat font-black text-sm uppercase tracking-wider">Envío en Moto</span>
-                <span className="text-xs text-neutral-400 font-semibold leading-relaxed">Berisso, Ensenada, La Plata. Costo a convenir.</span>
+                <span className="text-xs text-neutral-400 font-semibold leading-relaxed">[COMPLETAR: cobertura y costo de envío]</span>
               </button>
             </div>
             
@@ -197,7 +197,7 @@ export default function Checkout() {
                   id="address"
                   name="address"
                   type="text" 
-                  placeholder="Ej: Montevideo 1234, Depto 2, Berisso" 
+                  placeholder="Ej: Calle 1234, Depto 2"
                   autoComplete="street-address"
                   value={customerInfo.address} 
                   onChange={e => setCustomerInfo({...customerInfo, address: e.target.value})}
@@ -232,7 +232,7 @@ export default function Checkout() {
               >
                 <Banknote className="w-6 h-6 text-white" />
                 <span className="font-montserrat font-black text-sm uppercase tracking-wider">Reservar (Transf / Efectivo)</span>
-                <span className="text-xs text-neutral-400 font-semibold leading-relaxed">Reserva sin seña por 24hs o con seña por 10 días. Coordiná por WhatsApp.</span>
+                <span className="text-xs text-neutral-400 font-semibold leading-relaxed">[COMPLETAR: política de reserva y canal de coordinación]</span>
               </button>
             </div>
           </div>

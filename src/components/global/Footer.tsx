@@ -26,47 +26,41 @@ export default function Footer() {
     <footer className="bg-black border-t border-neutral-800 pt-10 pb-20 md:pb-10">
       <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 text-neutral-400 text-sm">
         <div>
-          <h3 className="font-anton text-xl text-white tracking-wider mb-4">IMPORTADOS BSSO</h3>
-          <p className="mb-2">La mejor indumentaria urbana y deportiva.</p>
-          <p>Envíos en moto a Berisso, Ensenada y La Plata.</p>
+          <h3 className="font-anton text-xl text-white tracking-wider mb-4">[COMPLETAR: MARCA]</h3>
+          <p className="mb-2">[COMPLETAR: descripción breve del negocio]</p>
+          <p>[COMPLETAR: modalidad y zona de envíos]</p>
         </div>
 
         <div>
           <h4 className="font-bold text-white mb-4 uppercase">Redes Sociales</h4>
           <ul className="space-y-2">
             <li>
-              <a href="https://instagram.com/importados.bsso2" target="_blank" rel="noreferrer" className="flex items-center gap-2 hover:text-red-500 transition-colors">
-                <InstagramIcon className="w-4 h-4" /> @importados.bsso2
-              </a>
+              <span className="flex items-center gap-2"><InstagramIcon className="w-4 h-4" /> [COMPLETAR: Instagram]</span>
             </li>
             <li>
-              <a href="https://instagram.com/valen.imports2" target="_blank" rel="noreferrer" className="flex items-center gap-2 hover:text-red-500 transition-colors">
-                <InstagramIcon className="w-4 h-4" /> @valen.imports2 (Accesorios)
-              </a>
+              <span className="flex items-center gap-2"><InstagramIcon className="w-4 h-4" /> [COMPLETAR: red secundaria]</span>
             </li>
           </ul>
         </div>
 
         <div>
-          <h4 className="font-bold text-white mb-4 uppercase">Local</h4>
+          <h4 id="contacto" className="font-bold text-white mb-4 uppercase">Contacto</h4>
           <ul className="space-y-2">
             <li className="flex items-start gap-2">
               <MapPin className="w-4 h-4 mt-0.5 shrink-0" />
-              <span>16 e/ 166 y 167, Berisso</span>
+              <span>[COMPLETAR: dirección o modalidad de retiro]</span>
             </li>
             <li>
-              <p className="text-neutral-500 mt-2">Jueves o Sábados - Consultar horarios</p>
+              <p className="text-neutral-500 mt-2">[COMPLETAR: días y horarios]</p>
             </li>
             <li className="pt-2">
-              <a href="https://www.google.com/maps?q=Importados+Berisso%F0%9F%91%95%F0%9F%A7%A2%F0%9F%A4%A9,+Edgar+Aschieri+4416,+B1923+Berisso,+Provincia+de+Buenos+Aires&ftid=0x95a2e5001710cdf7:0x146911eae1a6f180&entry=gps&lucs=,94242550,94224825,94227247,94227248,47071704,47069508,94218641,94233079,94203019,47084304,94208458,94208447&g_ep=CAISDTYuMTQyLjAuOTE5NzAYACDXggMqbCw5NDI0MjU1MCw5NDIyNDgyNSw5NDIyNzI0Nyw5NDIyNzI0OCw0NzA3MTcwNCw0NzA2OTUwOCw5NDIxODY0MSw5NDIzMzA3OSw5NDIwMzAxOSw0NzA4NDMwNCw5NDIwODQ1OCw5NDIwODQ0N0ICQVI%3D&g_st=com.google.maps.preview.copy" target="_blank" rel="noreferrer" className="inline-block px-4 py-2 border border-neutral-700 rounded-md hover:bg-neutral-800 transition-colors text-xs font-semibold">
-                Ver en Google Maps
-              </a>
+              <span className="inline-block px-4 py-2 border border-neutral-700 rounded-md text-xs font-semibold">[COMPLETAR: enlace de ubicación]</span>
             </li>
           </ul>
         </div>
       </div>
       <div className="container mx-auto px-4 mt-8 pt-8 border-t border-neutral-800 text-center text-xs">
-        <p>&copy; {new Date().getFullYear()} Importados Berisso. Todos los derechos reservados.</p>
+        <p>&copy; {new Date().getFullYear()} [COMPLETAR: marca]. Todos los derechos reservados.</p>
       </div>
     </footer>
   );

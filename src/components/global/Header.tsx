@@ -12,11 +12,7 @@ export default function Header() {
     <header className="sticky top-0 z-50 w-full bg-neutral-900 border-b border-neutral-800">
       <div className="container mx-auto px-4 h-20 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 relative z-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
-          <img 
-            src="/images/logo-transparent.png" 
-            alt="Importados Berisso Logo" 
-            className="h-12 md:h-16 w-auto object-contain" 
-          />
+          <span className="font-anton text-xl md:text-2xl uppercase tracking-wider text-white">[COMPLETAR: marca]</span>
         </Link>
 
         <div className="flex items-center gap-2 md:gap-4">

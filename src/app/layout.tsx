@@ -13,8 +13,8 @@ const montserrat = Montserrat({ subsets: ["latin"], variable: "--font-montserrat
 const anton = Anton({ weight: "400", subsets: ["latin"], variable: "--font-anton" });
 
 export const metadata: Metadata = {
-  title: "Importados Bsso",
-  description: "La mejor indumentaria streetwear en Berisso",
+  title: "[COMPLETAR: nombre de la tienda]",
+  description: "[COMPLETAR: descripción de la tienda]",
 };
 
 export default function RootLayout({

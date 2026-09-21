@@ -11,11 +11,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const product = await getProductById(id);
 
   if (!product) {
-    return { title: 'Producto no encontrado | Importados Berisso' };
+    return { title: 'Producto no encontrado | [COMPLETAR: marca]' };
   }
 
   return {
-    title: `${product.name} | Importados Berisso`,
+    title: `${product.name} | [COMPLETAR: marca]`,
     description: product.description,
     openGraph: {
       title: product.name,

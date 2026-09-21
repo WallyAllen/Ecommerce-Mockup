@@ -25,8 +25,19 @@ interface DBProduct {
   product_sizes?: { size: string; stock_quantity: number }[];
 }
 
+const GENERIC_IMAGE_BY_CATEGORY: Record<string, string> = {
+  remeras: '/images/remera.png',
+  buzos: '/images/buzo-new.png',
+  pantalones: '/images/jogger.png',
+  calzado: '/images/calzado.png',
+  accesorios: '/images/reloj.png',
+  perfumes: '/images/perfume.png',
+  gorras: '/images/gorra-new.png',
+};
+
 function mapProductRecord(p: DBProduct): Product {
   const [cat, subcat] = p.category.split('-');
+  const image = GENERIC_IMAGE_BY_CATEGORY[cat] ?? '/images/remera.png';
   return {
     id: p.id,
     name: p.name,
@@ -35,9 +46,9 @@ function mapProductRecord(p: DBProduct): Product {
     category: cat,
     subcategory: subcat || '',
     fullCategory: p.category,
-    image: p.image_url,
+    image,
     isNew: p.is_new,
-    images: [p.image_url],
+    images: [image],
     sizes: p.product_sizes ? p.product_sizes.map((s) => ({
       name: s.size,
       inStock: s.stock_quantity > 0
@@ -91,4 +102,3 @@ export async function getNewArrivals(): Promise<Product[]> {
   if (error || !data) return [];
   return data.map(mapProductRecord);
 }
-

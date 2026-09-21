@@ -16,8 +16,8 @@ export default function ProductClient({ product }: { product: Product }) {
   const [showSizeGuide, setShowSizeGuide] = useState(false);
 
   const crossSelling = [
-    { id: "cs1", name: "Reloj Lacoste White", price: 35000, image: "/images/reloj.png" },
-    { id: "cs2", name: "Perfume Asad Lattafa", price: 95000, image: "/images/perfume.png" }
+    { id: "cs1", name: "Accesorio destacado", price: 0, image: "/images/reloj.png" },
+    { id: "cs2", name: "Producto complementario", price: 0, image: "/images/perfume.png" }
   ];
 
   const nextImage = () => setCurrentImageIndex((prev) => (prev + 1) % product.images.length);
@@ -172,7 +172,7 @@ export default function ProductClient({ product }: { product: Product }) {
               </div>
             ))}
           </div>
-          <p className="text-xs text-neutral-500 mt-4 font-bold uppercase tracking-wider">Accesorios por @valen.imports2</p>
+          <p className="text-xs text-neutral-500 mt-4 font-bold uppercase tracking-wider">[COMPLETAR: detalle de accesorios o proveedor]</p>
         </div>
 
       </div>
